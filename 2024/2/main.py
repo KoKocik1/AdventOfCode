@@ -1,4 +1,4 @@
-from get_file import GetFile
+from helpers import GetFile
 
 
 def get_list_from_row(row):
@@ -57,7 +57,7 @@ def part2(file):
 
 def main():
     file = GetFile(
-        '/Users/krzysztofkokot/Projects/Algorithms/2024/2/data_part1.txt', ' ')
+        '/Users/krzysztofkokot/Projects/Algorithms/2024/2/data.txt', ' ')
     print(part1(file))
     print(part2(file))
 

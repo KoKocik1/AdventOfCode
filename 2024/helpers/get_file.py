@@ -14,7 +14,7 @@ class GetFile:
 if __name__ == "__main__":
     print("Example 1: Using GetFile.get_row()")
     file_reader = GetFile(
-        '/Users/krzysztofkokot/Projects/Algorithms/2024/2/data.txt', ' ')
+        '/Users/krzysztofkokot/Projects/Algorithms/2024/3/data.txt', ' ')
     row_generator = file_reader.get_row()
     print(f"First row: {next(row_generator)}")
     print(f"Second row: {next(row_generator)}")
