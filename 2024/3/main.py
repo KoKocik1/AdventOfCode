@@ -66,16 +66,15 @@ def part2(file):
 def main():
     """Main function that runs both parts of the task."""
     data_file = Path(__file__).parent / 'data.txt'
-    delimiter = ' '
+
+    file = GetFile(str(data_file), delimiter=' ')
 
     # Part 1: Sum of all mul() in all rows
-    file1 = GetFile(str(data_file), delimiter)
-    result1 = part1(file1)
+    result1 = part1(file)
     print(f"Part 1: {result1}")
 
     # Part 2: Sum of mul() after removing don't()...do() sections
-    file2 = GetFile(str(data_file), delimiter)
-    result2 = part2(file2)
+    result2 = part2(file)
     print(f"Part 2: {result2}")
 
 
