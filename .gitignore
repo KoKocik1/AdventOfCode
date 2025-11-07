@@ -89,3 +89,6 @@ wheels/
 .chroma/
 
 .langgraph_api/
+
+*.csv
+*.txt
