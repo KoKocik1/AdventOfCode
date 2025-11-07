@@ -48,11 +48,49 @@ class Update:
     def __repr__(self) -> str:
         return f"Update({self.numbers})"
 
+    def check_line(self, rules: Rules) -> bool:
+        """
+        Check if an update sequence violates any rules.
+
+        A rule violation occurs when a 'before' page appears after 
+        its corresponding 'after' page in the sequence.
+
+        Returns:
+            True if the update is valid (no violations), False otherwise.
+        """
+
+        for current_pos, current_page in enumerate(self.numbers):
+            # Get all rules where current_page must come before another page
+            relevant_rules = rules.get_rules_for_page(current_page)
+
+            for rule in relevant_rules:
+                # Check if the 'after' page appears before current_page (violation)
+                if rule.after in self.numbers[:current_pos]:
+                    return False
+        return True
+
+    def repair_line(self, rules: Rules):
+        for current_pos, current_page in enumerate(self.numbers):
+            # Get all rules where current_page must come before another page
+            relevant_rules = rules.get_rules_for_page(current_page)
+
+            for rule in relevant_rules:
+                # Check if the 'after' page appears before current_page (violation)
+                # if yes then swap the pages
+                if rule.after in self.numbers[:current_pos]:
+                    self.numbers[current_pos], self.numbers[self.numbers.index(
+                        rule.after)] = self.numbers[self.numbers.index(rule.after)], self.numbers[current_pos]
+
+        if not self.check_line(rules):
+            self.repair_line(rules)
+
 
 class Updates:
     """Collection of update sequences."""
 
     def __init__(self):
+        self.valid_updates = []
+        self.invalid_updates = []
         self.update_lines = []
 
     def add_update_line(self, line: list[int]):
@@ -62,3 +100,20 @@ class Updates:
     def __iter__(self):
         """Allow iteration over updates."""
         return iter(self.update_lines)
+
+    def check_updates(self, rules: Rules):
+        for update in self.update_lines:
+            if update.check_line(rules):
+                self.valid_updates.append(update)
+            else:
+                self.invalid_updates.append(update)
+
+    def get_valid_updates(self) -> list[Update]:
+        return self.valid_updates
+
+    def get_invalid_updates(self) -> list[Update]:
+        return self.invalid_updates
+
+    def repair_updates(self, rules: Rules):
+        for update in self.invalid_updates:
+            update.repair_line(rules)
