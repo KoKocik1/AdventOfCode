@@ -4,24 +4,23 @@ from classes import GridFinder, Word, Position, GridFinderX
 
 
 def find_words(grid: GridFinder, word: Word, positions: list[Position]) -> int:
+    """Find all occurrences of word in all 8 directions (character-by-character checking)."""
+    direction_methods = [
+        grid.find_horizontal_words_at_position,
+        grid.find_horizontal_backward_words_at_position,
+        grid.find_vertical_words_at_position,
+        grid.find_vertical_backward_words_at_position,
+        grid.find_diagonal_right_down_words_at_position,
+        grid.find_diagonal_right_up_words_at_position,
+        grid.find_diagonal_left_down_words_at_position,
+        grid.find_diagonal_left_up_words_at_position,
+    ]
+
     count = 0
     for position in positions:
-        if grid.find_horizontal_words_at_position(word, position):
-            count += 1
-        if grid.find_horizontal_backward_words_at_position(word, position):
-            count += 1
-        if grid.find_vertical_words_at_position(word, position):
-            count += 1
-        if grid.find_vertical_backward_words_at_position(word, position):
-            count += 1
-        if grid.find_diagonal_right_down_words_at_position(word, position):
-            count += 1
-        if grid.find_diagonal_right_up_words_at_position(word, position):
-            count += 1
-        if grid.find_diagonal_left_down_words_at_position(word, position):
-            count += 1
-        if grid.find_diagonal_left_up_words_at_position(word, position):
-            count += 1
+        for method in direction_methods:
+            if method(word, position):
+                count += 1
     return count
 
 
