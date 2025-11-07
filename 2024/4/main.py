@@ -1,3 +1,4 @@
+from pathlib import Path
 from helpers import GetFile
 from classes import GridFinder, Word, Position, GridFinderX
 
