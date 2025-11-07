@@ -22,9 +22,7 @@ class Rules:
         self.rules.append(rule)
 
         # Update lookup dictionary for O(1) access
-        if before not in self._rules_by_before:
-            self._rules_by_before[before] = []
-        self._rules_by_before[before].append(rule)
+        self._rules_by_before.setdefault(before, []).append(rule)
 
     def get_rules_for_page(self, page: int) -> list[Rule]:
         """Get all rules where the given page is the 'before' page."""
@@ -69,20 +67,39 @@ class Update:
                     return False
         return True
 
-    def repair_line(self, rules: Rules):
-        for current_pos, current_page in enumerate(self.numbers):
-            # Get all rules where current_page must come before another page
-            relevant_rules = rules.get_rules_for_page(current_page)
+    def repair_line(self, rules: Rules, max_iterations: int = 100):
+        """
+        Repair violations by swapping pages until valid or max iterations reached.
 
-            for rule in relevant_rules:
-                # Check if the 'after' page appears before current_page (violation)
-                # if yes then swap the pages
-                if rule.after in self.numbers[:current_pos]:
-                    self.numbers[current_pos], self.numbers[self.numbers.index(
-                        rule.after)] = self.numbers[self.numbers.index(rule.after)], self.numbers[current_pos]
+        Args:
+            rules: Rules to check against
+            max_iterations: Maximum number of repair attempts to prevent infinite loops
+        """
+        for _ in range(max_iterations):
+            violation_found = False
 
-        if not self.check_line(rules):
-            self.repair_line(rules)
+            for current_pos, current_page in enumerate(self.numbers):
+                # Get all rules where current_page must come before another page
+                relevant_rules = rules.get_rules_for_page(current_page)
+
+                for rule in relevant_rules:
+                    # Check if the 'after' page appears before current_page (violation)
+                    if rule.after in self.numbers[:current_pos]:
+                        # Find the position of the violating 'after' page
+                        after_pos = self.numbers.index(rule.after)
+                        # Swap the pages to fix the violation
+                        self.numbers[current_pos], self.numbers[after_pos] = (
+                            self.numbers[after_pos], self.numbers[current_pos]
+                        )
+                        violation_found = True
+                        break
+
+                if violation_found:
+                    break
+
+            # If no violations found, we're done
+            if not violation_found or self.check_line(rules):
+                break
 
 
 class Updates:
@@ -102,16 +119,24 @@ class Updates:
         return iter(self.update_lines)
 
     def check_updates(self, rules: Rules):
+        """Separate updates into valid and invalid based on rule violations."""
+        self.valid_updates.clear()
+        self.invalid_updates.clear()
+
         for update in self.update_lines:
             if update.check_line(rules):
                 self.valid_updates.append(update)
             else:
                 self.invalid_updates.append(update)
 
-    def get_valid_updates(self) -> list[Update]:
+    @property
+    def valid_updates_list(self) -> list[Update]:
+        """Get list of valid updates."""
         return self.valid_updates
 
-    def get_invalid_updates(self) -> list[Update]:
+    @property
+    def invalid_updates_list(self) -> list[Update]:
+        """Get list of invalid updates."""
         return self.invalid_updates
 
     def repair_updates(self, rules: Rules):
