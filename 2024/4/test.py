@@ -4,13 +4,13 @@
 from pathlib import Path
 
 from helpers import GetFile
-from main import find_words, look_for_character_position
-from classes import Word, Grid
+from main import find_words
+from classes import Word, GridFinder, GridFinderX
 
 
 def test_read_2d_array():
     """Test loading file to 2D array."""
-    data_file = Path(__file__).parent / 'test.txt'
+    data_file = Path(__file__).parent / 'data/test.txt'
     # Empty delimiter for character-by-character reading
     file_reader = GetFile(data_file, '')
     grid = file_reader.get_2d_array()
@@ -40,12 +40,26 @@ def test_read_2d_array():
 
 def test_find_xmas_test_words():
     """Test finding XMAS words in the test file."""
-    data_file = Path(__file__).parent / 'test.txt'
+    data_file = Path(__file__).parent / 'data/test.txt'
     file_reader = GetFile(data_file, '')
-    grid = Grid(file_reader.get_2d_array())
+    grid = GridFinder(file_reader.get_2d_array())
 
     word = Word("XMAS")
-    positions = look_for_character_position(grid, word.get_character(0))
+    positions = grid.look_for_character_position(word.get_character(0))
     found_words = find_words(grid, word, positions)
     # Check vertical occurrences of XMAS
     assert found_words == 18
+
+
+def test_find_mas_x_test_words():
+    """Test finding XMAS words in the test file."""
+    data_file = Path(__file__).parent / 'data/test1.txt'
+    file_reader = GetFile(data_file, '')
+    grid = GridFinderX(file_reader.get_2d_array())
+
+    positions = grid.look_for_character_position('A')
+    count = 0
+    for position in positions:
+        if grid.find_words_x('S', 'M', position):
+            count += 1
+    assert count == 2
