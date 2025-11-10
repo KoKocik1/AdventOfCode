@@ -4,32 +4,32 @@ from helpers import GetFile
 from classes import Equation, Actions
 
 
-def part1(file: GetFile):
-    count = 0
+def parse_equations(file: GetFile) -> list[Equation]:
+    equations: list[Equation] = []
     for row in file.get_row():
-        equation = Equation.create_from_string(row[0], row[1].strip())
-        actions = Actions()
-        if actions.solve_equation(equation):
-            count += equation.score
-    return count
+        equations.append(Equation.create_from_string(row[0], row[1].strip()))
+    return equations
 
 
-def part2(file: GetFile):
+def part1(equations: list[Equation]) -> int:
     count = 0
-    for row in file.get_row():
-        equation = Equation.create_from_string(row[0], row[1].strip())
-        actions = Actions()
-        if actions.solve_equation_part2(equation):
-            count += equation.score
-    return count
+    actions = Actions()
+    return sum(eq.score for eq in equations if actions.solve_equation(eq))
+
+
+def part2(equations: list[Equation]) -> int:
+    count = 0
+    actions = Actions(allow_concat=True)
+    return sum(eq.score for eq in equations if actions.solve_equation(eq))
 
 
 def main():
     data_file = Path(__file__).parent / 'data/test.txt'
     file = GetFile(str(data_file), delimiter=':')
-    result = part1(file)
+    equations = parse_equations(file)
+    result = part1(equations)
     print(result)
-    result = part2(file)
+    result = part2(equations)
     print(result)
 
 
