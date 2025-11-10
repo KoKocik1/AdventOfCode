@@ -33,6 +33,9 @@ class Actions:
     def multiply(self, a: int, b: int) -> int:
         return a * b
 
+    def concat(self, a: int, b: int) -> int:
+        return int(str(a) + str(b))
+
     def solve_equation(self, equation: Equation, act_score: int = 0, idx: int = 0):
         args = equation.arguments
         if idx == len(args):
@@ -40,6 +43,20 @@ class Actions:
 
         n = args[idx]
         return (
-            self.solve_equation(equation, act_score + n, idx + 1) or
-            self.solve_equation(equation, act_score * n, idx + 1)
+            self.solve_equation(equation, self.add(act_score, n), idx + 1) or
+            self.solve_equation(equation, self.multiply(act_score, n), idx + 1)
+        )
+
+    def solve_equation_part2(self, equation: Equation, act_score: int = 0, idx: int = 0):
+        args = equation.arguments
+        if idx == len(args):
+            return act_score == equation.score
+
+        n = args[idx]
+
+        return (
+            self.solve_equation_part2(equation, self.add(act_score, n), idx + 1) or
+            self.solve_equation_part2(equation, self.multiply(act_score, n), idx + 1) or
+            self.solve_equation_part2(
+                equation, self.concat(act_score, n), idx + 1)
         )
