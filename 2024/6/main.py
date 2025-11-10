@@ -23,12 +23,15 @@ def part2(board: Board, player: Player, visited: VisitedStates):
             continue
         loop_checker = LoopChecker(player.get_position())
 
-        test_board = board.deep_copy()
-        test_board.set_character_at_position(
-            visited_state.position.row, visited_state.position.col, '#')
-        has_loop = loop_checker.test_loop(test_board, player)
+        r = visited_state.position.row
+        c = visited_state.position.col
+
+        old_character = board.get_character(r, c)
+        board.set_character_at_position(r, c, '#')
+        has_loop = loop_checker.test_loop(board, player)
         if has_loop:
             found_obstacles.add_visited_state(visited_state)
+        board.set_character_at_position(r, c, old_character)
     print(f"Total obstacles: {len(found_obstacles.visited_states)}")
 
 

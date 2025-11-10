@@ -66,9 +66,6 @@ class Board:
     def __repr__(self):
         return self.__str__()
 
-    def deep_copy(self):
-        return Board([[char for char in row] for row in self.board])
-
 
 class Player:
     position: Position
