@@ -1,4 +1,4 @@
-from classes import Board, Player, Position, Bot, VisitedStates, VisitedState
+from classes import Board, Player, Position, LoopChecker, VisitedStates, VisitedState
 from pathlib import Path
 from helpers import GetFile
 from tqdm import tqdm
@@ -21,13 +21,12 @@ def part2(board: Board, player: Player, visited: VisitedStates):
     for visited_state in tqdm(visited.visited_states, desc="Checking obstacles"):
         if visited_state.position == player.get_position():
             continue
-        bot = Bot()
-        bot.set_start_point(player.get_position())
+        loop_checker = LoopChecker(player.get_position())
 
         test_board = board.deep_copy()
         test_board.set_character_at_position(
             visited_state.position.row, visited_state.position.col, '#')
-        has_loop = bot.test_loop(test_board, player)
+        has_loop = loop_checker.test_loop(test_board, player)
         if has_loop:
             found_obstacles.add_visited_state(visited_state)
     print(f"Total obstacles: {len(found_obstacles.visited_states)}")

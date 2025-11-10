@@ -6,6 +6,10 @@ class Position:
         self.row = row
         self.col = col
 
+    @staticmethod
+    def create_from_position(position: 'Position'):
+        return Position(position.row, position.col)
+
     def __eq__(self, other):
         """Compare two Position objects by their row and col values."""
         if not isinstance(other, Position):
@@ -22,9 +26,6 @@ class Board:
 
     def __init__(self, board):
         self.board = board
-
-    def get_board(self) -> list[list[str]]:
-        return self.board
 
     def get_row_length(self) -> int:
         return len(self.board[0])
@@ -59,12 +60,6 @@ class Board:
                     count += 1
         return count
 
-    def change_all_characters(self, character: str, new_character: str):
-        for row in range(self.get_column_length()):
-            for col in range(self.get_row_length()):
-                if self.is_character_at_position(row, col, character):
-                    self.set_character_at_position(row, col, new_character)
-
     def __str__(self):
         return '\n'.join([''.join(row) for row in self.board])
 
@@ -86,18 +81,6 @@ class Player:
 
     def get_position(self) -> Position:
         return self.position
-
-    def get_front_position(self) -> Position:
-        new_position = Position(self.position.row, self.position.col)
-        if self.directions[self.direction] == 'up':
-            new_position.row -= 1
-        elif self.directions[self.direction] == 'down':
-            new_position.row += 1
-        elif self.directions[self.direction] == 'left':
-            new_position.col -= 1
-        elif self.directions[self.direction] == 'right':
-            new_position.col += 1
-        return new_position
 
     def turn_right(self):
         self.direction = (self.direction + 1) % 4
@@ -127,32 +110,9 @@ class Player:
                 self.position.row, self.position.col, 'X')
             return True
 
-    def add_obstacle_in_front(self, board: Board) -> tuple[bool, Position]:
-        new_position = Position(self.position.row, self.position.col)
-        if self.directions[self.direction] == 'up':
-            new_position.row -= 1
-        elif self.directions[self.direction] == 'down':
-            new_position.row += 1
-        elif self.directions[self.direction] == 'left':
-            new_position.col -= 1
-        elif self.directions[self.direction] == 'right':
-            new_position.col += 1
-
-        if board.is_out_of_board(new_position):
-            return (False, None)
-        else:
-            if board.is_character_at_position(new_position.row, new_position.col, '#'):
-                return (False, None)
-            elif board.is_character_at_position(new_position.row, new_position.col, '+'):
-                return (False, None)
-            else:
-                board.set_character_at_position(
-                    new_position.row, new_position.col, 'O')
-                return (True, new_position)
-
     def copy(self) -> 'Player':
         """Create a deep copy of the Player object."""
-        copied_player = Player(Position(self.position.row, self.position.col))
+        copied_player = Player(Position.create_from_position(self.position))
         copied_player.direction = self.direction
         copied_player.directions = self.directions.copy()  # Copy the list
         copied_player.moved = False
@@ -187,37 +147,24 @@ class VisitedStates:
         return state in self.visited_states
 
 
-class Bot:
-    def __init__(self):
+class LoopChecker:
+    def __init__(self, start_point: Position = None):
         self.obstacles = []
-        self.start_point = None
-
-    def set_start_point(self, start_point: Position):
         self.start_point = start_point
-
-    def add_obstacle(self, obstacle: Position):
-        self.obstacles.append(obstacle)
-
-    def is_obstacle_at_position(self, position: Position) -> bool:
-        return position in self.obstacles
 
     def test_loop(self, board: Board, player: Player) -> bool:
 
-        visited_states = VisitedStates()  # (row, col, direction_index)
+        visited_states = VisitedStates()  # track (position, direction)
         bot = player.copy()
 
         while True:
             if not bot.move(board):
                 return False
-            state = (bot.get_position().row,
-                     bot.get_position().col, bot.direction)
-            board.set_character_at_position(
-                bot.get_position().row, bot.get_position().col, '+')
-            # print(f"test_board:\n{test_board}")
-            # print(test_board)
+            visited_state = VisitedState(
+                Position.create_from_position(bot.get_position()), bot.direction)
 
             # Loop detected within this simulation
-            if visited_states.is_visited_state(state):
+            if visited_states.is_visited_state(visited_state):
                 return True
-            visited_states.add_visited_state(state)
+            visited_states.add_visited_state(visited_state)
         return False
