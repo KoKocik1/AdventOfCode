@@ -14,7 +14,7 @@ class GetFile:
                 else:
                     yield stripped.split(self.delimiter)
 
-    def get_2d_array(self):
+    def get_2d_array(self) -> list[list[str]]:
         """Return the file as a 2D array (list of lists)."""
         return [row for row in self.get_row()]
 
