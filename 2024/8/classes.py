@@ -16,7 +16,7 @@ class AntennaAnalyzer:
         unique_chars.remove('.')
         return unique_chars
 
-    def find_antinodes(self) -> set[Position]:
+    def find_antinodes(self, repeat: bool = False) -> set[Position]:
         """
         For each signal character, for every ordered pair of distinct antenna positions
         (A, B), add the mirror of B through A: M = A + (A - B), if it lies on the board.
@@ -30,11 +30,28 @@ class AntennaAnalyzer:
                 for other in positions:
                     if other == main_point:
                         continue
-                    mirror_point = self.get_mirror_point(main_point, other)
-                    if self.board.is_out_of_board(mirror_point):
-                        continue
-                    antinodes.add(mirror_point)
+                    if repeat:
+                        point_a = main_point
+                        point_b = other
+                        while True:
+                            antinodes.add(point_a)
+                            antinodes.add(point_b)
+                            mirror_point = self.get_mirror_point(
+                                point_a, point_b)
+                            if self.board.is_out_of_board(mirror_point):
+                                break
+                            antinodes.add(mirror_point)
+                            point_b = point_a
+                            point_a = mirror_point
+                    else:
+                        mirror_point = self.get_mirror_point(main_point, other)
+                        if self.board.is_out_of_board(mirror_point):
+                            continue
+                        antinodes.add(mirror_point)
         return antinodes
 
     def count_antinodes(self) -> int:
         return len(self.find_antinodes())
+
+    def count_antinodes_lines(self) -> int:
+        return len(self.find_antinodes(repeat=True))

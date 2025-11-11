@@ -9,8 +9,9 @@ def part1(board: Board) -> int:
     return analyzer.count_antinodes()
 
 
-def part2(file: GetFile) -> int:
-    return 0
+def part2(board: Board) -> int:
+    analyzer = AntennaAnalyzer(board)
+    return analyzer.count_antinodes_lines()
 
 
 def main():
@@ -18,6 +19,7 @@ def main():
     file = GetFile(str(data_file), delimiter='')
     board = Board(file.get_2d_array())
     print(part1(board))
+    print(part2(board))
 
 
 if __name__ == "__main__":
