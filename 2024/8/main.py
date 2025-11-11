@@ -6,12 +6,12 @@ from classes import AntennaAnalyzer
 
 def part1(board: Board) -> int:
     analyzer = AntennaAnalyzer(board)
-    return analyzer.count_antinodes()
+    return analyzer.count_sinlge_antinodes()
 
 
 def part2(board: Board) -> int:
     analyzer = AntennaAnalyzer(board)
-    return analyzer.count_antinodes_lines()
+    return analyzer.count_recursive_antinodes()
 
 
 def main():
