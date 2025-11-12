@@ -30,12 +30,12 @@ class EmptySpace:
 
 class DiscSpace:
     def __init__(self):
-        self.disc_space = []
+        self.disc_space: list[int] = []
 
     def load_disc_space(self, file: GetFile):
         is_file = True
         file_ID = 0
-        empty_ID = -1
+
         for row in file.get_row():
             for char in row:
                 char_to_int = int(char)
@@ -82,10 +82,7 @@ class DiscSpace:
                 found_file = True
             elif found_file:
                 return file
-        return None
-
-    def remove_empty_slots(self):
-        self.disc_space = [slot for slot in self.disc_space if slot != -1]
+        return file if found_file else None
 
     def clear_disc_space(self):
         empty_position = self._find_first_empty_space_position(0)
@@ -108,22 +105,23 @@ class DiscSpace:
         file_to_move = self._find_last_file_position(
             len(self.disc_space) - 1, last_file_IDs)
 
-        empty_position = self._find_first_empty_space_for_file(file_to_move)
+        while file_to_move is not None:
+            # mark this file ID as processed so we don't consider it again
+            last_file_IDs.add(file_to_move.file_ID)
 
-        while file_to_move is not None or file_to_move.position <= file_to_move.file_size:
-            if empty_position is not None:
-                difference = empty_position.first_position - file_to_move.position
-                # move the block from number_position to the first empty slot
-                for i in range(file_to_move.position, file_to_move.position + file_to_move.file_size):
-                    self.disc_space[i + difference] = self.disc_space[i]
-                    last_file_IDs.add(self.disc_space[i])
-                    self.disc_space[i] = -1
-            file_to_move = self._find_last_file_position(
-                file_to_move.position - 1, last_file_IDs)
-            if file_to_move is None or file_to_move.file_ID == 0:
-                break
             empty_position = self._find_first_empty_space_for_file(
                 file_to_move)
+            if empty_position is not None:
+                difference = empty_position.first_position - file_to_move.position
+                # move the whole file block into the empty slot
+                for i in range(file_to_move.position, file_to_move.position + file_to_move.file_size):
+                    self.disc_space[i + difference] = self.disc_space[i]
+                    self.disc_space[i] = -1
+
+            # find next file (to the left of current) that hasn't been processed
+            file_to_move = self._find_last_file_position(
+                file_to_move.position - 1, last_file_IDs
+            )
 
     def calculate_checksum(self) -> int:
         checksum = 0
