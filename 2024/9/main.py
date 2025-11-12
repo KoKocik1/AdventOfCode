@@ -8,7 +8,6 @@ def part1(file: GetFile) -> int:
     disc_space = DiscSpace()
     disc_space.load_disc_space(file)
     disc_space.clear_disc_space()
-    disc_space.remove_empty_slots()
     return disc_space.calculate_checksum()
 
 
