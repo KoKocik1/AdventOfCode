@@ -8,21 +8,27 @@ class Climber(Player):
         self.score_ways: dict[Position, int] = {}
 
     def find_trail(self, current_position: Position, last_value: int = -1):
-        act_value = int(self.board.get_character(current_position))
-        if act_value != last_value + 1:
+        current_value = int(self.board.get_character(current_position))
+        if current_value != last_value + 1:
             return
-        if act_value == 9:
+
+        if current_value == 9:
             self.score_positions.add(current_position)
             # count occurrences of paths reaching this position
             self.score_ways[current_position] = self.score_ways.get(
                 current_position, 0) + 1
             return
-        player = Player(self.board)
+
+        # Explore all four directions
+        # Save current direction to restore after recursion
+        saved_direction = self.direction
         for _ in self.directions:
-            player.turn_right()
-            new_position = player.move(current_position)
+            self.turn_right()
+            new_position = self.move(current_position)
             if new_position:
-                self.find_trail(new_position, act_value)
+                self.find_trail(new_position, current_value)
+        # Restore direction state
+        self.direction = saved_direction
 
     def get_score(self) -> int:
         return len(self.score_positions)

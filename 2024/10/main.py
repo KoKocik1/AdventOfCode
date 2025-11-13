@@ -4,26 +4,29 @@ from helpers import GetFile, Board
 from classes import Climber
 
 
-def part1(array: list[list[str]]) -> int:
+def _process_trailheads(array: list[list[str]], score_method: str) -> int:
+    """Process all trailheads and accumulate scores using the specified method."""
     board = Board(array)
-    count = 0
     trailheads = board.find_all_character_positions('0')
+    total_score = 0
+
     for trailhead in trailheads:
         climber = Climber(board)
         climber.find_trail(trailhead)
-        count += climber.get_score()
-    return count
+        if score_method == 'positions':
+            total_score += climber.get_score()
+        elif score_method == 'ways':
+            total_score += climber.get_score_ways()
+
+    return total_score
+
+
+def part1(array: list[list[str]]) -> int:
+    return _process_trailheads(array, 'positions')
 
 
 def part2(array: list[list[str]]) -> int:
-    board = Board(array)
-    count = 0
-    trailheads = board.find_all_character_positions('0')
-    for trailhead in trailheads:
-        climber = Climber(board)
-        climber.find_trail(trailhead)
-        count += climber.get_score_ways()
-    return count
+    return _process_trailheads(array, 'ways')
 
 
 def main():
