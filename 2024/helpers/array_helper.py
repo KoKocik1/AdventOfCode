@@ -1,3 +1,4 @@
+
 class Position:
     row: int
     col: int
@@ -80,3 +81,32 @@ class Board:
 
     def __repr__(self):
         return self.__str__()
+
+
+class Player:
+    def __init__(self, board: Board):
+        self.board = board
+        self.directions = ['up', 'right', 'down', 'left']
+        self.direction = 0
+
+    def turn_right(self) -> None:
+        self.direction = (self.direction + 1) % 4
+
+    def move(self, act_position: Position) -> Position:
+        new_position = None
+        if self.directions[self.direction] == 'up':
+            new_position = Position(act_position.row - 1, act_position.col)
+        elif self.directions[self.direction] == 'right':
+            new_position = Position(act_position.row, act_position.col + 1)
+        elif self.directions[self.direction] == 'down':
+            new_position = Position(act_position.row + 1, act_position.col)
+        elif self.directions[self.direction] == 'left':
+            new_position = Position(act_position.row, act_position.col - 1)
+        if self.board.is_out_of_board(new_position):
+            return None
+        return new_position
+
+    def is_valid_position(self, position: Position, character: str) -> bool:
+        if self.board.is_character_at_position(position, character):
+            return False
+        return True
