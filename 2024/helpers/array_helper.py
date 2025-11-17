@@ -32,7 +32,9 @@ class Board:
     def get_character(self, position: Position) -> str:
         return self.board[position.row][position.col]
 
-    def is_character_at_position(self, position: Position, character: str) -> bool:
+    def is_character_at_position(self, position: Position | None, character: str) -> bool:
+        if position is None:
+            return False
         return self.get_character(position) == character
 
     def find_character_position(self, character: str) -> Position | None:
@@ -49,6 +51,13 @@ class Board:
                 if self.is_character_at_position(Position(row, col), character):
                     positions.append(Position(row, col))
         return positions
+
+    def find_first_character_position(self, character: str) -> Position | None:
+        for row in range(self.get_column_length()):
+            for col in range(self.get_row_length()):
+                if self.is_character_at_position(Position(row, col), character):
+                    return Position(row, col)
+        return None
 
     def get_all_characters(self) -> list[str]:
         """Return a list of all unique characters on the board."""
