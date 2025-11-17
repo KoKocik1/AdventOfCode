@@ -1,5 +1,7 @@
 from helpers.array_helper import Position, Board
-from helpers.array_helper import Player
+
+# Constants
+PROCESSED_MARKER = '+'
 
 
 class Field:
@@ -33,85 +35,89 @@ class FiledFinder:
         self.circuit_calculator = CircuitCalculator(self.board)
 
     def find_fields(self):
+        """Find all fields (islands) for each unique character on the board."""
         all_characters = self.board.get_all_characters()
-        # Filter out '+' which we use as a marker for processed positions
-        characters_to_process = [c for c in all_characters if c != '+']
+        characters_to_process = [
+            c for c in all_characters if c != PROCESSED_MARKER]
         for character in characters_to_process:
             self.search_field(character)
 
-    def count_walls(self, point_edge_dict) -> int:
+    def count_walls(self, point_edge_dict: dict[str, set[Position]]) -> int:
+        """Count connected wall groups. Each connected component of edges with the same config is one wall."""
         walls = 0
 
         for config, positions in point_edge_dict.items():
             unvisited = set(positions)
+            neighbors = self._get_neighbors_for_config(config)
 
-            # wybór dozwolonych sąsiadów na podstawie edge_config
-            if config[0] == '1':
-                # vertical → sprawdzamy tylko lewo/prawo
-                neighbors = [(0, -1), (0, 1)]
-            else:
-                # horizontal → sprawdzamy tylko góra/dół
-                neighbors = [(-1, 0), (1, 0)]
-
-            # każda spójna grupa = 1 wall
             while unvisited:
                 start = unvisited.pop()
-                stack = [start]
-
-                while stack:
-                    pos = stack.pop()
-
-                    for dr, dc in neighbors:
-                        np = Position(pos.row + dr, pos.col + dc)
-
-                        if np in unvisited:
-                            unvisited.remove(np)
-                            stack.append(np)
-
-                # ukończony DFS → 1 wall
+                self._dfs_remove_connected(start, unvisited, neighbors)
                 walls += 1
 
         return walls
 
+    def _get_neighbors_for_config(self, config: str) -> list[tuple[int, int]]:
+        """Get allowed neighbor directions based on edge configuration."""
+        if config[0] == '1':  # vertical edges → check left/right
+            return [(0, -1), (0, 1)]
+        else:  # horizontal edges → check up/down
+            return [(-1, 0), (1, 0)]
+
+    def _dfs_remove_connected(self, start: Position, unvisited: set[Position], neighbors: list[tuple[int, int]]):
+        """DFS to remove all connected positions from unvisited set."""
+        stack = [start]
+        while stack:
+            pos = stack.pop()
+            for dr, dc in neighbors:
+                np = Position(pos.row + dr, pos.col + dc)
+                if np in unvisited:
+                    unvisited.remove(np)
+                    stack.append(np)
+
     def search_field(self, character: str, iteration: int = 0):
+        """Recursively find all islands of the same character."""
         position = self.board.find_first_character_position(character)
-        if position:
-            # Find all connected positions (island) - collect positions first
-            island_positions = self.find_island_positions(position, character)
-            # Calculate circuit length for this specific island
-            circuit_length, circuit_edges = self.circuit_calculator.calculate_circuit_for_positions(
-                island_positions)
-            # INSERT_YOUR_CODE
-            # circuit_edges is expected to be a list of tuples: (position, edge_config)
-            point_edge_dict = {}
+        if not position:
+            return
 
-            for edge in circuit_edges:
-                cfg = edge.edge_config
-                if cfg not in point_edge_dict:
-                    point_edge_dict[cfg] = set()
-                point_edge_dict[cfg].add(edge.position)
+        island_positions = self.find_island_positions(position, character)
+        circuit_length, circuit_edges = self.circuit_calculator.calculate_circuit_for_positions(
+            island_positions)
 
-            walls = self.count_walls(point_edge_dict)
+        point_edge_dict = self._group_edges_by_config(circuit_edges)
+        walls = self.count_walls(point_edge_dict)
 
-            # Mark all island positions as '+' to avoid finding them again
-            for pos in island_positions:
-                self.board.set_character_at_position(pos, '+')
-            # Create field with found positions
-            self.fields.append(
-                Field(character, iteration, island_positions, circuit_length, walls))
-            # Search for next island of the same character
-            self.search_field(character, iteration + 1)
+        # Mark all island positions as processed to avoid finding them again
+        for pos in island_positions:
+            self.board.set_character_at_position(pos, PROCESSED_MARKER)
+
+        self.fields.append(
+            Field(character, iteration, island_positions, circuit_length, walls))
+
+        # Search for next island of the same character
+        self.search_field(character, iteration + 1)
+
+    def _group_edges_by_config(self, circuit_edges: list['Edge']) -> dict[str, set[Position]]:
+        """Group edges by their configuration into a dictionary."""
+        point_edge_dict: dict[str, set[Position]] = {}
+        for edge in circuit_edges:
+            cfg = edge.edge_config
+            if cfg not in point_edge_dict:
+                point_edge_dict[cfg] = set()
+            point_edge_dict[cfg].add(edge.position)
+        return point_edge_dict
 
     def find_island_positions(self, position: Position, character: str) -> list[Position]:
-        """Find all connected positions (island) of the same character and return them as a list"""
+        """Find all connected positions (island) of the same character using BFS."""
         visited = set()
         stack = [position]
         island_positions = []
+        neighbors = [(-1, 0), (1, 0), (0, -1), (0, 1)]  # up, down, left, right
 
         while stack:
             current_pos = stack.pop()
 
-            # Skip if already visited or out of bounds
             if current_pos in visited:
                 continue
             if self.board.is_out_of_board(current_pos):
@@ -119,40 +125,33 @@ class FiledFinder:
             if not self.board.is_character_at_position(current_pos, character):
                 continue
 
-            # Mark as visited and add to island
             visited.add(current_pos)
             island_positions.append(current_pos)
 
             # Check all 4 directions
-            player = Player(self.board)
-            for _ in range(4):
-                new_position = player.move(current_pos)
-                player.turn_right()
-                if new_position and new_position not in visited:
-                    if self.board.is_character_at_position(new_position, character):
-                        stack.append(new_position)
+            for dr, dc in neighbors:
+                new_position = Position(
+                    current_pos.row + dr, current_pos.col + dc)
+                if new_position not in visited:
+                    stack.append(new_position)
 
         return island_positions
 
-    def print_fields(self):
-        count = 0
-        for field in self.fields:
-            # print(field.type)
-            # print(field.iteration)
-            score = len(field.positions) * field.circuit_length
-            # print(f"{len(field.positions)} * {field.circuit_length} = {score}")
-            count += score
-        return count
+    def calculate_total_score(self) -> int:
+        """Calculate total score: sum of (field_size * circuit_length) for all fields."""
+        return sum(len(field.positions) * field.circuit_length for field in self.fields)
 
-    def print_fields_with_walls(self):
-        count = 0
-        for field in self.fields:
-            # print(field.type)
-            score = len(field.positions) * field.walls
-            # print(
-            #     f"fields: {len(field.positions)}* walls: {field.walls} = {score}")
-            count += score
-        return count
+    def calculate_total_score_with_walls(self) -> int:
+        """Calculate total score: sum of (field_size * walls) for all fields."""
+        return sum(len(field.positions) * field.walls for field in self.fields)
+
+    def print_fields(self) -> int:
+        """Legacy method name - use calculate_total_score() instead."""
+        return self.calculate_total_score()
+
+    def print_fields_with_walls(self) -> int:
+        """Legacy method name - use calculate_total_score_with_walls() instead."""
+        return self.calculate_total_score_with_walls()
 
 
 class Edge:
@@ -174,23 +173,23 @@ class Edge:
 class CircuitCalculator:
     def __init__(self, board: Board):
         self.board = board
+        self._num_cols = board.get_row_length()
+        self._num_rows = board.get_column_length()
 
-    def calculate_circuit_for_positions(self, positions: list[Position]) -> tuple[int, list]:
-        """Calculate perimeter (circuit length) for an island by counting vertical and horizontal edges"""
-        edges = []
+    def calculate_circuit_for_positions(self, positions: list[Position]) -> tuple[int, list[Edge]]:
+        """Calculate perimeter (circuit length) for an island by counting vertical and horizontal edges."""
         if not positions:
-            return 0, edges
+            return 0, []
 
-        vertical_edges, vertical_edges_list = self._count_vertical_edges(
+        vertical_count, vertical_edges = self._count_vertical_edges(positions)
+        horizontal_count, horizontal_edges = self._count_horizontal_edges(
             positions)
-        horizontal_edges, horizontal_edges_list = self._count_horizontal_edges(
-            positions)
-        edges.extend(vertical_edges_list)
-        edges.extend(horizontal_edges_list)
-        return vertical_edges + horizontal_edges, edges
 
-    def _count_vertical_edges(self, positions: list[Position]) -> tuple[int, list]:
-        """Count vertical edges (left/right boundaries) by scanning columns."""
+        all_edges = vertical_edges + horizontal_edges
+        return vertical_count + horizontal_count, all_edges
+
+    def _count_vertical_edges(self, positions: list[Position]) -> tuple[int, list[Edge]]:
+        """Count vertical edges (left/right boundaries) by scanning columns top to bottom."""
         if not positions:
             return 0, []
 
@@ -198,39 +197,35 @@ class CircuitCalculator:
         count = 0
         edges = []
 
-        num_cols = self.board.get_row_length()      # liczba kolumn
-        num_rows = self.board.get_column_length()   # liczba wierszy
-
-        for col in range(num_cols):
+        for col in range(self._num_cols):
             in_island = False
-            # przechodzimy w dół po wierszach
-            for row in range(num_rows):
+            for row in range(self._num_rows):
                 cur = Position(row, col)
                 is_in_island = cur in position_set
 
-                # wejście do wyspy (non-island -> island): left edge at current cell
+                # Entering island: left edge at current cell
                 if is_in_island and not in_island:
                     count += 1
                     edges.append(Edge(cur, True, True, False))
                     in_island = True
 
-                # wyjście z wyspy (island -> non-island): right edge at last island cell (row-1)
+                # Leaving island: right edge at last island cell
                 elif not is_in_island and in_island:
                     last = Position(row - 1, col)
                     edges.append(Edge(last, True, False, True))
                     count += 1
                     in_island = False
 
-            # jeśli wyspa dochodziła do dolnej granicy (byliśmy w wyspie przy ostatnim wierszu)
+            # Island extends to bottom boundary
             if in_island:
-                last = Position(num_rows - 1, col)
+                last = Position(self._num_rows - 1, col)
                 edges.append(Edge(last, True, False, True))
                 count += 1
 
         return count, edges
 
-    def _count_horizontal_edges(self, positions: list[Position]) -> tuple[int, list]:
-        """Count horizontal edges (top/bottom boundaries) by scanning rows."""
+    def _count_horizontal_edges(self, positions: list[Position]) -> tuple[int, list[Edge]]:
+        """Count horizontal edges (top/bottom boundaries) by scanning rows left to right."""
         if not positions:
             return 0, []
 
@@ -238,32 +233,28 @@ class CircuitCalculator:
         count = 0
         edges = []
 
-        num_cols = self.board.get_row_length()      # liczba kolumn
-        num_rows = self.board.get_column_length()   # liczba wierszy
-
-        for row in range(num_rows):
+        for row in range(self._num_rows):
             in_island = False
-            # przechodzimy po kolumnach w prawo
-            for col in range(num_cols):
+            for col in range(self._num_cols):
                 cur = Position(row, col)
                 is_in_island = cur in position_set
 
-                # wejście do wyspy (non-island -> island): top edge at current cell
+                # Entering island: top edge at current cell
                 if is_in_island and not in_island:
                     count += 1
                     edges.append(Edge(cur, False, True, False))
                     in_island = True
 
-                # wyjście z wyspy (island -> non-island): bottom edge at last island cell (col-1)
+                # Leaving island: bottom edge at last island cell
                 elif not is_in_island and in_island:
                     last = Position(row, col - 1)
                     edges.append(Edge(last, False, False, True))
                     count += 1
                     in_island = False
 
-            # jeśli wyspa dochodziła do prawej granicy
+            # Island extends to right boundary
             if in_island:
-                last = Position(row, num_cols - 1)
+                last = Position(row, self._num_cols - 1)
                 edges.append(Edge(last, False, False, True))
                 count += 1
 
