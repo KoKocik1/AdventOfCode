@@ -77,22 +77,24 @@ class CramerCalculator:
 class BruteforceSolver:
     @staticmethod
     def solve(ax: int, ay: int, bx: int, by: int, px: int, py: int) -> Optional[Tuple[int, int]]:
-        best = None
-        best_cost = float('inf')
+        a = 0
+        while True:
+            missing_x = px - a * ax
+            missing_y = py - a * ay
 
-        for a in range(MAX_BUTTON_PRESSES + 1):
-            for b in range(MAX_BUTTON_PRESSES + 1):
-                if a * ax + b * bx != px:
-                    continue
-                if a * ay + b * by != py:
-                    continue
+            if missing_x < 0 or missing_y < 0:
+                return None
 
-                cost = BUTTON_A_COST * a + BUTTON_B_COST * b
-                if cost < best_cost:
-                    best_cost = cost
-                    best = (a, b)
+            if missing_x % bx == 0 and missing_y % by == 0:
+                b_x = missing_x // bx
+                b_y = missing_y // by
 
-        return best
+                if b_x == b_y and 0 <= b_x <= MAX_BUTTON_PRESSES:
+                    return (a, b_x)
+
+            a += 1
+            if a > MAX_BUTTON_PRESSES:
+                return None
 
 
 class MachineCalculator:
@@ -124,12 +126,6 @@ class MachineCalculator:
             a, b = result
             return self._calculate_cost(a, b)
 
-        # If Cramer didn't give a result, try brute-force
-        result = BruteforceSolver.solve(ax, ay, bx, by, px, py)
-        if result:
-            a, b = result
-            return self._calculate_cost(a, b)
-
         # No solution found
         return 0
 
@@ -137,21 +133,9 @@ class MachineCalculator:
         """Calculate cost with a limit on button presses using iterative approach."""
         ax, ay, bx, by, px, py = self._get_coordinates()
 
-        a = 0
-        while True:
-            missing_x = px - a * ax
-            missing_y = py - a * ay
+        result = BruteforceSolver.solve(ax, ay, bx, by, px, py)
+        if result:
+            a, b = result
+            return self._calculate_cost(a, b)
 
-            if missing_x < 0 or missing_y < 0:
-                return 0
-
-            if missing_x % bx == 0 and missing_y % by == 0:
-                b_x = missing_x // bx
-                b_y = missing_y // by
-
-                if b_x == b_y and 0 <= b_x <= MAX_BUTTON_PRESSES:
-                    return self._calculate_cost(a, b_x)
-
-            a += 1
-            if a > MAX_BUTTON_PRESSES:
-                return 0
+        return 0
