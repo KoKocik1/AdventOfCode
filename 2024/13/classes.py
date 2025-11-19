@@ -1,5 +1,9 @@
-import math
-from sympy import Matrix
+from typing import Optional, Tuple
+
+# Constants for button costs and limits
+BUTTON_A_COST = 3
+BUTTON_B_COST = 1
+MAX_BUTTON_PRESSES = 101
 
 
 class Button:
@@ -38,26 +42,25 @@ class PrizeFactory:
         return Prize(x, y)
 
 
-class Mashine:
+class Machine:
     def __init__(self, button_a: Button, button_b: Button, prize: Prize):
         self.button_a = button_a
         self.button_b = button_b
         self.prize = prize
 
     def __str__(self) -> str:
-        return f"Mashine(button_a={self.button_a}, button_b={self.button_b}, prize={self.prize})"
+        return f"Machine(button_a={self.button_a}, button_b={self.button_b}, prize={self.prize})"
 
 
 class DeterminantCalculator:
     @staticmethod
-    def compute(ax, ay, bx, by) -> int:
+    def compute(ax: int, ay: int, bx: int, by: int) -> int:
         return ax * by - ay * bx
 
 
 class CramerCalculator:
     @staticmethod
-    def solve(ax, ay, bx, by, px, py):
-
+    def solve(ax: int, ay: int, bx: int, by: int, px: int, py: int) -> Optional[Tuple[int, int]]:
         D = DeterminantCalculator.compute(ax, ay, bx, by)
 
         if D == 0:
@@ -73,18 +76,18 @@ class CramerCalculator:
 
 class BruteforceSolver:
     @staticmethod
-    def solve(ax, ay, bx, by, r1, r2):
+    def solve(ax: int, ay: int, bx: int, by: int, px: int, py: int) -> Optional[Tuple[int, int]]:
         best = None
         best_cost = float('inf')
 
-        for a in range(0, 101):
-            for b in range(0, 101):
-                if a * ax + b * bx != r1:
+        for a in range(MAX_BUTTON_PRESSES + 1):
+            for b in range(MAX_BUTTON_PRESSES + 1):
+                if a * ax + b * bx != px:
                     continue
-                if a * ay + b * by != r2:
+                if a * ay + b * by != py:
                     continue
 
-                cost = 3 * a + b
+                cost = BUTTON_A_COST * a + BUTTON_B_COST * b
                 if cost < best_cost:
                     best_cost = cost
                     best = (a, b)
@@ -92,59 +95,63 @@ class BruteforceSolver:
         return best
 
 
-class MashineCalculator:
-    mashine: Mashine
+class MachineCalculator:
+    def __init__(self, machine: 'Machine'):
+        self.machine = machine
 
-    def __init__(self, mashine):
-        self.mashine = mashine
+    def _get_coordinates(self) -> Tuple[int, int, int, int, int, int]:
+        """Extract all coordinates from the machine."""
+        return (
+            self.machine.button_a.x,
+            self.machine.button_a.y,
+            self.machine.button_b.x,
+            self.machine.button_b.y,
+            self.machine.prize.x,
+            self.machine.prize.y
+        )
 
-    def calculate_mashine(self, limit: int = None) -> int:
-        ax = self.mashine.button_a.x
-        ay = self.mashine.button_a.y
-        bx = self.mashine.button_b.x
-        by = self.mashine.button_b.y
-        px = self.mashine.prize.x
-        py = self.mashine.prize.y
+    def _calculate_cost(self, a: int, b: int) -> int:
+        """Calculate the cost given button press counts."""
+        return BUTTON_A_COST * a + BUTTON_B_COST * b
 
-        # # 1. Try Cramer method
+    def calculate_machine(self) -> int:
+        """Calculate the minimal cost to win the prize using Cramer's rule or brute force."""
+        ax, ay, bx, by, px, py = self._get_coordinates()
+
+        # Try Cramer's method first
         result = CramerCalculator.solve(ax, ay, bx, by, px, py)
         if result:
             a, b = result
-            if limit is None or (0 <= a <= limit + 1 and 0 <= b <= limit + 1):
-                # print(f"CramerSolver: {a}, {b}")
-                return a * 3 + b * 1
+            return self._calculate_cost(a, b)
 
-        # 2. If Cramer didn't give a result → brute-force
+        # If Cramer didn't give a result, try brute-force
         result = BruteforceSolver.solve(ax, ay, bx, by, px, py)
         if result:
             a, b = result
-            # print(f"BruteforceSolver: {a}, {b}")
-            return a * 3 + b * 1
+            return self._calculate_cost(a, b)
 
-        # 3. No solution
+        # No solution found
         return 0
 
     def calculate_with_limit(self) -> int:
-        ax = self.mashine.button_a.x
-        ay = self.mashine.button_a.y
-        bx = self.mashine.button_b.x
-        by = self.mashine.button_b.y
-        px = self.mashine.prize.x
-        py = self.mashine.prize.y
+        """Calculate cost with a limit on button presses using iterative approach."""
+        ax, ay, bx, by, px, py = self._get_coordinates()
 
-        a = -1
+        a = 0
         while True:
-            a += 1
-            missing_x = px - a*ax
-            missing_y = py - a*ay
+            missing_x = px - a * ax
+            missing_y = py - a * ay
+
             if missing_x < 0 or missing_y < 0:
                 return 0
-            if missing_x % bx != 0 or missing_y % by != 0:
-                continue
-            b_x = missing_x // bx
-            b_y = missing_y // by
 
-            if b_x != b_y:
-                continue
-            if 0 <= b_x <= 101:
-                return 3*a + 1*b_x
+            if missing_x % bx == 0 and missing_y % by == 0:
+                b_x = missing_x // bx
+                b_y = missing_y // by
+
+                if b_x == b_y and 0 <= b_x <= MAX_BUTTON_PRESSES:
+                    return self._calculate_cost(a, b_x)
+
+            a += 1
+            if a > MAX_BUTTON_PRESSES:
+                return 0
