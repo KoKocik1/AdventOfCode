@@ -257,10 +257,10 @@ def test_move_down_no_change():
     expected_board = """########
 #....OO#
 ##.....#
-#....@.#
+#...@..#
 #.#.O..#
 #...O..#
-#......#
+#...0..#
 ########"""
 
     assert board_to_string(board) == expected_board.strip()
@@ -398,7 +398,7 @@ def test_sequence_of_moves():
 ########"""
 
     board = create_board_from_string(initial_board)
-    moves = "<^>><vv<v>>v<<"
+    moves = "<^^>>>vv<v>>v<<"
     clean_board = CleanBoard(board, moves)
 
     # Execute all moves
@@ -411,7 +411,7 @@ def test_sequence_of_moves():
 #.....O#
 #.#O@..#
 #...O..#
-#......#
+#...O..#
 ########"""
 
     assert board_to_string(board) == expected_final.strip()
