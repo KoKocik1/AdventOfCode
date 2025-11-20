@@ -34,6 +34,10 @@ class Move:
         self.symbol = symbol
         self.position = position
 
+    def __repr__(self) -> str:
+        """String representation for debugging."""
+        return f"Move(symbol='{self.symbol}', position=({self.position.row}, {self.position.col}))"
+
 
 class CleanBoard:
     """Manages the cleaning board game logic."""
@@ -44,8 +48,15 @@ class CleanBoard:
         self.player_position = self.board.find_character_position(PLAYER)
 
     def _get_position_without_trash(self, moves_done: list[Move]) -> Position | None:
-        """Get the position without trash when hitting a wall with <= 2 moves."""
-        if len(moves_done) == 0:
+        """Get the position without trash when hitting a wall with < 2 moves.
+
+        Args:
+            moves_done: List of moves made during this turn.
+
+        Returns:
+            Position to use (second move if available, otherwise first), or None if empty.
+        """
+        if not moves_done:
             return None
         # Return the second move if available, otherwise the first
         return moves_done[1].position if len(moves_done) > 1 else moves_done[0].position
@@ -107,22 +118,29 @@ class CleanBoard:
         if direction:
             self.move_player(direction, moves_done)
 
-    def clean_board(self) -> Board:
-        """Execute all moves to clean the board."""
+    def _initialize_move(self, moves_done: list[Move]) -> None:
+        """Initialize a move by resetting player position and marking starting position."""
+        self.player_position = self.board.find_character_position(PLAYER)
+        moves_done.append(Move(PLAYER, self.player_position))
+        self.board.set_character_at_position(self.player_position, CLEAN)
+
+    def clean_board(self, debug: bool = False) -> Board:
+        """Execute all moves to clean the board.
+
+        Args:
+            debug: If True, print debug output after each move.
+
+        Returns:
+            The board after all moves are executed.
+        """
         for move_symbol in self.moves:
             moves_done: list[Move] = []
-
-            # Reset player position and mark starting position
-            self.player_position = self.board.find_character_position(PLAYER)
-            moves_done.append(Move(PLAYER, self.player_position))
-            self.board.set_character_at_position(self.player_position, CLEAN)
-
-            # Execute the move
+            self._initialize_move(moves_done)
             self._move_player_direction(move_symbol, moves_done)
 
-            # Debug output
-            # print(move_symbol)
-            # print(self.board)
-            # print("--------------------------------")
+            if debug:
+                print(move_symbol)
+                print(self.board)
+                print("--------------------------------")
 
         return self.board
