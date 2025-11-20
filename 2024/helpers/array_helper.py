@@ -8,6 +8,18 @@ class Position:
     def create_from_position(position: 'Position') -> 'Position':
         return Position(position.row, position.col)
 
+    def move(self, direction: str) -> 'Position':
+        if direction == 'up':
+            return Position(self.row - 1, self.col)
+        elif direction == 'down':
+            return Position(self.row + 1, self.col)
+        elif direction == 'left':
+            return Position(self.row, self.col - 1)
+        elif direction == 'right':
+            return Position(self.row, self.col + 1)
+        else:
+            return None
+
     def __eq__(self, other: object) -> bool:
         """Compare two Position objects by their row and col values."""
         if not isinstance(other, Position):
