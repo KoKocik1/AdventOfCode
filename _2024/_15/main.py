@@ -2,7 +2,7 @@ from pathlib import Path
 
 from helpers import GetFile
 from helpers.array_helper import Board
-from classes import CleanBoard, TRASH
+from _2024._15.classes import CleanBoard, TRASH
 
 # Constants
 SCORE_MULTIPLIER = 100

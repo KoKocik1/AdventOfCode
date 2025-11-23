@@ -2,7 +2,7 @@ from pathlib import Path
 from tqdm import tqdm
 
 from helpers import GetFile
-from classes import Stones, RecursiveStones
+from _2024._11.classes import Stones, RecursiveStones
 
 
 def part1(rows: list[str], blinks: int) -> int:

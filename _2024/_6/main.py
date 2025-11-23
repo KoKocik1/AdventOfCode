@@ -1,6 +1,7 @@
-from classes import Player, LoopChecker, VisitedStates, VisitedState
 from pathlib import Path
-from helpers import GetFile, Board, Position
+from helpers import GetFile
+from helpers.array_helper import Board, Position
+from _2024._6.classes import Player, LoopChecker, VisitedStates, VisitedState
 from tqdm import tqdm
 
 

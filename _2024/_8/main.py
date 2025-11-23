@@ -1,7 +1,7 @@
 from pathlib import Path
 from helpers import GetFile
 from helpers.array_helper import Board
-from classes import AntennaAnalyzer
+from _2024._8.classes import AntennaAnalyzer
 
 
 def part1(board: Board) -> int:

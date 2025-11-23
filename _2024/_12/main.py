@@ -1,8 +1,8 @@
 from pathlib import Path
 
 from helpers import GetFile
-from classes import FiledFinder
 from helpers.array_helper import Board
+from _2024._12.classes import FiledFinder
 
 
 def calculate_fields(array: list[list[str]]) -> tuple[int, int]:

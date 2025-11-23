@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from helpers import GetFile
-from classes import DiscSpace
+from _2024._9.classes import DiscSpace
 
 
 def part1(file: GetFile) -> int:

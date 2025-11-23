@@ -1,4 +1,4 @@
-from helpers import Board, Position, Player
+from helpers.array_helper import Board, Position, Player
 
 
 class Climber(Player):

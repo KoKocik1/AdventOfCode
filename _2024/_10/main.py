@@ -1,7 +1,8 @@
 from pathlib import Path
 
-from helpers import GetFile, Board
-from classes import Climber
+from helpers import GetFile
+from helpers.array_helper import Board
+from _2024._10.classes import Climber
 
 
 def _process_trailheads(array: list[list[str]], score_method: str) -> int:

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from helpers import get_csv_data
+from helpers import GetFile
 
 
 def count_occurrences(value, value_list):
@@ -36,11 +36,11 @@ def main():
     column_names = ['list1', 'list2']
 
     # Load data
-    df = get_csv_data(str(data_file), names=column_names, add_index=False)
+    df = GetFile(str(data_file), delimiter='   ').get_2d_array()
 
     # Convert to lists and sort
-    list1 = quicksort(df['list1'].tolist())
-    list2 = quicksort(df['list2'].tolist())
+    list1 = quicksort(df[0])
+    list2 = quicksort(df[1])
 
     # Calculate and print results
     result1 = part1(list1, list2)

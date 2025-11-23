@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from helpers import GetFile
-from classes import Equation, Actions
+from _2024._7.classes import Equation, Actions
 
 
 def parse_equations(file: GetFile) -> list[Equation]:

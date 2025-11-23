@@ -1,6 +1,6 @@
 from pathlib import Path
 from helpers import GetFile
-from classes import Rules, Updates, Update
+from _2024._5.classes import Rules, Updates, Update
 
 
 def load_rules(file: GetFile) -> Rules:
