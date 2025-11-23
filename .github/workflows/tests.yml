@@ -24,5 +24,6 @@ jobs:
 
       - name: Run tests
         run: |
+            find . -name "__pycache__" -exec rm -rf {} +
             export PYTHONPATH=$(pwd)
             pytest -q
