@@ -45,7 +45,7 @@ class Move:
 class CleanBoard:
     """Manages the cleaning board game logic."""
 
-    def __init__(self, board: Board, moves: str, should_transform_board=True):
+    def __init__(self, board: Board, moves: str, should_transform_board=False):
         self.board = self._transform_board(
             board) if should_transform_board else board
         self.moves = moves

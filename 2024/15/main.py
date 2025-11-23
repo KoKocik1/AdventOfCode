@@ -63,7 +63,7 @@ def part1(board: Board, moves: list[str]) -> int:
     Returns:
         The calculated score based on final trash positions.
     """
-    clean_board = CleanBoard(board, moves, False)
+    clean_board = CleanBoard(board, moves)
     clean_board.clean_board()
     print(board)
     return calculate_score(board, TRASH)
@@ -79,7 +79,7 @@ def part2(board: Board, moves: list[str]) -> int:
     Returns:
         Result for part 2.
     """
-    clean_board_huge = CleanBoard(board, moves)
+    clean_board_huge = CleanBoard(board, moves, True)
     #print(clean_board_huge.board)
     clean_board_huge.clean_board()
     #print(clean_board_huge.board)

@@ -46,9 +46,9 @@ def test_initial_state():
     clean_board = CleanBoard(board, "")
 
     # Check player position is found correctly
-    assert clean_board.player_position.row == 2
-    assert clean_board.player_position.col == 2
-    assert board.get_character(clean_board.player_position) == PLAYER
+    player_position = clean_board.board.find_character_position(PLAYER)
+    assert player_position.row == 2
+    assert player_position.col == 2
 
 
 def test_move_left_hit_wall():
