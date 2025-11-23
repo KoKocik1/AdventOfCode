@@ -94,3 +94,5 @@ wheels/
 *.txt
 data/
 template/
+
+!requirements.txt
