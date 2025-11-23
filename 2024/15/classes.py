@@ -73,18 +73,17 @@ class CleanBoard:
 
     def _finish_move(self, moves_done: list[Move]) -> None:
         """Finish the move by placing trash and setting the player position."""
-
         character_to_place = CLEAN
         for move in moves_done:
             if move.symbol == WALL:
                 return
-            self.board.set_character_at_position(
-                move.position, character_to_place)
+            self.board.set_character_at_position(move.position, character_to_place)
             character_to_place = move.symbol
 
     def move_player(self, direction: str, player_position: Position, after_trash: bool = False) -> None:
         """Move the player in the given direction until hitting a wall or stopping condition."""
         new_moves_done = []
+        
         while True:
             if self.was_wall:
                 return
@@ -101,38 +100,45 @@ class CleanBoard:
                 self.moves_done.append(new_moves_done)
                 return
             
-            if not after_trash and (direction == UP or direction == DOWN):
-                if character == TRASH1 or character == TRASH2:
+            # Handle vertical movement through trash pairs
+            if not after_trash and direction in (UP, DOWN):
+                if character in (TRASH1, TRASH2):
                     second_trash_position = self._get_second_trash_position(player_position, character)
-                    if second_trash_position not in self.visited_positions:
+                    if second_trash_position and second_trash_position not in self.visited_positions:
                         self.move_player(direction, second_trash_position, after_trash=True)
 
-            
             after_trash = False
             player_position = player_position.move(direction)
             
-    def _get_second_trash_position(self, player_position: Position, first_trash_symbol: str) -> Position:
-        """Get the second trash position."""
-        
+    def _get_second_trash_position(self, player_position: Position, first_trash_symbol: str) -> Position | None:
+        """Get the second trash position based on the first trash symbol."""
         if first_trash_symbol == TRASH1:
             return Position(player_position.row, player_position.col + 1)
         elif first_trash_symbol == TRASH2:
             return Position(player_position.row, player_position.col - 1)
-        else:
-            return None
+        return None
         
     def _move_player_direction(self, move_symbol: str) -> None:
         """Convert move symbol to direction and move the player."""
         player_position = self.board.find_character_position(PLAYER)
+        if not player_position:
+            return
+            
         direction = MOVE_TO_DIRECTION.get(move_symbol)
-        if direction:
-            self.move_player(direction, player_position)
+        if not direction:
+            return
+            
+        self.move_player(direction, player_position)
+        
         if self.was_wall:
+            # Wall collision: discard all moves and reset
             self.moves_done.clear()
             self.was_wall = False
         else:
+            # Apply all moves to the board
             for move_list in self.moves_done:
                 self._finish_move(move_list)
+        
         self.visited_positions.clear()
 
     def clean_board(self, debug: bool = False) -> Board:

@@ -37,52 +37,49 @@ def load_board(file_path: Path) -> Board:
     return Board(file.get_2d_array())
 
 
-def load_moves(file_path: Path) -> list[str]:
+def load_moves(file_path: Path) -> str:
     """Load moves from file.
 
     Args:
         file_path: Path to the moves data file.
 
     Returns:
-        List of move symbols as strings.
+        String containing all move symbols concatenated.
     """
     file = GetFile(str(file_path), delimiter='')
     moves: list[str] = []
     for line in file.get_row():
         moves.extend(list(line))
-    return moves
+    return ''.join(moves)
 
 
-def part1(board: Board, moves: list[str]) -> int:
+def part1(board: Board, moves: str) -> int:
     """Execute cleaning moves and calculate the final score.
 
     Args:
         board: The game board.
-        moves: List of move symbols to execute.
+        moves: String of move symbols to execute.
 
     Returns:
         The calculated score based on final trash positions.
     """
     clean_board = CleanBoard(board, moves)
     clean_board.clean_board()
-    print(board)
     return calculate_score(board, TRASH)
 
 
-def part2(board: Board, moves: list[str]) -> int:
-    """Part 2 solution (placeholder).
+def part2(board: Board, moves: str) -> int:
+    """Part 2 solution with transformed board.
 
     Args:
         board: The game board.
-        moves: List of move symbols.
+        moves: String of move symbols.
 
     Returns:
         Result for part 2.
     """
-    clean_board_huge = CleanBoard(board, moves, True)
-    #print(clean_board_huge.board)
+    clean_board_huge = CleanBoard(board, moves, should_transform_board=True)
     clean_board_huge.clean_board()
-    #print(clean_board_huge.board)
     return calculate_score(clean_board_huge.board, '[')
 
 
