@@ -1,7 +1,7 @@
 """Tests for CleanBoard game logic."""
 
 from _2024._15.classes import CleanBoard, Move, PLAYER, TRASH
-from helpers import Board, Position
+from helpers.array_helper import Board, Position
 
 def create_board_from_string(board_str: str) -> Board:
     """Helper function to create a Board from a string representation."""

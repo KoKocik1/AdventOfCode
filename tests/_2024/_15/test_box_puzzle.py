@@ -1,7 +1,7 @@
 """Tests for Box-Pushing Puzzle game logic."""
 
 from _2024._15.classes import CleanBoard, PLAYER
-from helpers import Board
+from helpers.array_helper import Board
 
 # Box puzzle symbols
 BOX_LEFT = '['
