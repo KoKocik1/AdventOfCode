@@ -244,13 +244,9 @@ def test_move_down_no_change():
 ########"""
 
     board = create_board_from_string(initial_board)
-    clean_board = CleanBoard(board, "v")
+    clean_board = CleanBoard(board, "vv")
 
     # Execute move
-    clean_board.clean_board()
-
-    # After first move, try again
-    clean_board = CleanBoard(board, "v")
     clean_board.clean_board()
 
     # Should move down again - based on actual behavior
@@ -260,7 +256,7 @@ def test_move_down_no_change():
 #...@..#
 #.#.O..#
 #...O..#
-#...0..#
+#...O..#
 ########"""
 
     assert board_to_string(board) == expected_board.strip()

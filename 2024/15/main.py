@@ -8,7 +8,7 @@ from classes import CleanBoard, TRASH
 SCORE_MULTIPLIER = 100
 
 
-def calculate_score(board: Board) -> int:
+def calculate_score(board: Board, character: str) -> int:
     """Calculate the score based on trash positions.
 
     Score formula: sum of (100 * row + col) for each trash position.
@@ -19,7 +19,7 @@ def calculate_score(board: Board) -> int:
     Returns:
         The calculated score.
     """
-    trash_positions = board.find_all_character_positions(TRASH)
+    trash_positions = board.find_all_character_positions(character)
     return sum(SCORE_MULTIPLIER * position.row + position.col
                for position in trash_positions)
 
@@ -63,10 +63,10 @@ def part1(board: Board, moves: list[str]) -> int:
     Returns:
         The calculated score based on final trash positions.
     """
-    clean_board = CleanBoard(board, moves)
+    clean_board = CleanBoard(board, moves, False)
     clean_board.clean_board()
     print(board)
-    return calculate_score(board)
+    return calculate_score(board, TRASH)
 
 
 def part2(board: Board, moves: list[str]) -> int:
@@ -79,7 +79,11 @@ def part2(board: Board, moves: list[str]) -> int:
     Returns:
         Result for part 2.
     """
-    return 0
+    clean_board_huge = CleanBoard(board, moves)
+    #print(clean_board_huge.board)
+    clean_board_huge.clean_board()
+    #print(clean_board_huge.board)
+    return calculate_score(clean_board_huge.board, '[')
 
 
 def main():
@@ -92,7 +96,9 @@ def main():
     moves = load_moves(moves_file)
 
     print(part1(board, moves))
-    # print(part2(board, moves))
+    
+    board = load_board(board_file)
+    print(part2(board, moves))
 
 
 if __name__ == "__main__":
