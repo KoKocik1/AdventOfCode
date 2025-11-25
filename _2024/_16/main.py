@@ -16,7 +16,7 @@ def part2(array: list[list[int]]) -> int:
 
 
 def main():
-    data_file = Path(__file__).parent / 'data/test.txt'
+    data_file = Path(__file__).parent / 'data/data.txt'
     file = GetFile(str(data_file), delimiter='')
     array = file.get_2d_array()
     board = Board(array)

@@ -29,7 +29,7 @@ class MazeSolver:
             key = (position, direction)
             if self.end == position:
                 self.scores.append(score)
-                print(f"Score: {score}")
+                #print(f"Score: {score}")
                 continue
                 
             if self.is_visited(position, direction):
