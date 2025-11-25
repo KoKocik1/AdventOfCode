@@ -11,8 +11,12 @@ def part1(board: Board) -> int:
     return min(solver.scores)
 
 
-def part2(array: list[list[int]]) -> int:
-    return 0
+def part2(board: Board) -> int:
+    solver = MazeSolver(board)
+    solver.solve()
+    solver.mark_path(min(solver.scores))
+    print(board)
+    return board.count_characters('O')
 
 
 def main():
@@ -20,8 +24,8 @@ def main():
     file = GetFile(str(data_file), delimiter='')
     array = file.get_2d_array()
     board = Board(array)
-    print(part1(board))
-    print(part2(array))
+    #print(part1(board))
+    print(part2(board))
 
 
 if __name__ == "__main__":
