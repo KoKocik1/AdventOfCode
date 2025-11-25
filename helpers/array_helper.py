@@ -110,15 +110,36 @@ class Directions:
 
 
 class Player:
-    def __init__(self, board: Board):
+    def __init__(self, board: Board, direction: Directions = Directions.UP):
         self.board = board
         self.directions = [Directions.UP, Directions.RIGHT,
                            Directions.DOWN, Directions.LEFT]
-        self.direction = 0
+        self.direction = self.directions.index(direction)
 
     def turn_right(self) -> None:
         self.direction = (self.direction + 1) % 4
-
+        
+    def turn_left(self) -> None:
+        self.direction = (self.direction - 1) % 4
+    
+    def get_direction(self) -> Directions:
+        return self.directions[self.direction]
+    
+    def get_in_front_of(self, position: Position) -> str:
+        direction_name = self.directions[self.direction]
+        position = None
+        if direction_name == Directions.UP:
+            position = Position(position.row - 1, position.col)
+        elif direction_name == Directions.RIGHT:
+            position = Position(position.row, position.col + 1)
+        elif direction_name == Directions.DOWN:
+            position = Position(position.row + 1, position.col)
+        elif direction_name == Directions.LEFT:
+            position = Position(position.row, position.col - 1)
+        if position is None:
+            return None
+        return self.board.get_character(position)
+        
     def move(self, current_position: Position) -> Position | None:
         """Move one step in the current direction from the given position."""
         direction_name = self.directions[self.direction]
