@@ -29,6 +29,9 @@ class Position:
     def __hash__(self) -> int:
         """Make Position hashable so it can be used in sets and as dictionary keys."""
         return hash((self.row, self.col))
+    
+    def __str__(self):
+        return f"Position(row={self.row}, col={self.col})"
 
 
 class Board:
@@ -114,19 +117,22 @@ class Player:
         self.board = board
         self.directions = [Directions.UP, Directions.RIGHT,
                            Directions.DOWN, Directions.LEFT]
-        self.direction = self.directions.index(direction)
+        self.direction = direction
 
     def turn_right(self) -> None:
-        self.direction = (self.direction + 1) % 4
+        self.direction = self.directions[(self.directions.index(self.direction) + 1) % 4]
         
     def turn_left(self) -> None:
-        self.direction = (self.direction - 1) % 4
+        self.direction = self.directions[(self.directions.index(self.direction) - 1) % 4]
     
     def get_direction(self) -> Directions:
-        return self.directions[self.direction]
+        return self.direction
+    
+    def set_direction(self, direction: Directions) -> None:
+        self.direction = self.directions.index(direction)
     
     def get_in_front_of(self, position: Position) -> str:
-        direction_name = self.directions[self.direction]
+        direction_name = self.direction
         position = None
         if direction_name == Directions.UP:
             position = Position(position.row - 1, position.col)
