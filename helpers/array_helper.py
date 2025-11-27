@@ -148,7 +148,7 @@ class Player:
         
     def move(self, current_position: Position) -> Position | None:
         """Move one step in the current direction from the given position."""
-        direction_name = self.directions[self.direction]
+        direction_name = self.direction
 
         if direction_name == Directions.UP:
             new_position = Position(

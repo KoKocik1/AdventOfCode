@@ -192,7 +192,7 @@ class TestPlayer:
         board_data = [['.', '.'], ['.', '.']]
         board = Board(board_data)
         player = Player(board)
-        assert player.direction == 0
+        assert player.direction == Directions.UP
         assert len(player.directions) == 4
 
     def test_turn_right(self):
@@ -201,22 +201,22 @@ class TestPlayer:
         board = Board(board_data)
         player = Player(board)
         
-        assert player.direction == 0
+        assert player.direction == Directions.UP
         player.turn_right()
-        assert player.direction == 1
+        assert player.direction == Directions.RIGHT
         player.turn_right()
-        assert player.direction == 2
+        assert player.direction == Directions.DOWN
         player.turn_right()
-        assert player.direction == 3
+        assert player.direction == Directions.LEFT
         player.turn_right()
-        assert player.direction == 0  # Wraps around
+        assert player.direction == Directions.UP  # Wraps around
 
     def test_move_up(self):
         """Test moving up."""
         board_data = [['.', '.'], ['.', '.']]
         board = Board(board_data)
         player = Player(board)
-        player.direction = 0  # UP
+        player.direction = Directions.UP  # UP
         
         pos = Position(1, 1)
         new_pos = player.move(pos)
@@ -228,7 +228,7 @@ class TestPlayer:
         board_data = [['.', '.'], ['.', '.']]
         board = Board(board_data)
         player = Player(board)
-        player.direction = 1  # RIGHT
+        player.direction = Directions.RIGHT  # RIGHT
         
         pos = Position(1, 0)
         new_pos = player.move(pos)
@@ -240,7 +240,7 @@ class TestPlayer:
         board_data = [['.', '.'], ['.', '.']]
         board = Board(board_data)
         player = Player(board)
-        player.direction = 2  # DOWN
+        player.direction = Directions.DOWN  # DOWN
         
         pos = Position(0, 1)
         new_pos = player.move(pos)
@@ -252,7 +252,7 @@ class TestPlayer:
         board_data = [['.', '.'], ['.', '.']]
         board = Board(board_data)
         player = Player(board)
-        player.direction = 3  # LEFT
+        player.direction = Directions.LEFT  # LEFT
         
         pos = Position(1, 1)
         new_pos = player.move(pos)
@@ -264,7 +264,7 @@ class TestPlayer:
         board_data = [['.', '.'], ['.', '.']]
         board = Board(board_data)
         player = Player(board)
-        player.direction = 0  # UP
+        player.direction = Directions.UP  # UP
         
         pos = Position(0, 0)  # At top edge
         new_pos = player.move(pos)
