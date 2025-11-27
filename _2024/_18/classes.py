@@ -1,4 +1,4 @@
-from helpers.array_helper import Position, Board, Player
+from helpers.array_helper import Position, Board, Player, Directions
 from collections import deque
 
 class PathFinder:
@@ -58,13 +58,13 @@ class PathFinder:
         
         # print("Checking neighbors of", position, "with cost", cost)
         # print("-")
-        for direction in self.player.directions:
+        for direction in Directions:
             self.player.set_direction(direction)
             new_position = self.player.move(position)
             #print(direction, new_position)
             self.add_to_positions_to_visit(new_position, cost + 1)
                 #print(cost+1)
-        #self.draw_path()
+        self.draw_path()
 
     def draw_path(self) -> None:
         """Draw the path on the board."""

@@ -44,15 +44,15 @@ def load_points(file: GetFile) -> list[Position]:
     return points
 
 def main():
-    data_file = Path(__file__).parent / 'data/data.txt'
+    data_file = Path(__file__).parent / 'data/test.txt'
     file = GetFile(str(data_file), delimiter=',')
     points = load_points(file)
     
-    board_x_size = 71
-    board_y_size = 71
-    obstacles_size = 1024
+    board_x_size = 7
+    board_y_size = 7
+    obstacles_size = 12
     print(part1(points, board_x_size, board_y_size, obstacles_size))
-    print(part2(points, board_x_size, board_y_size, obstacles_size))
+    #print(part2(points, board_x_size, board_y_size, obstacles_size))
 
 
 if __name__ == "__main__":

@@ -1,3 +1,5 @@
+from enum import Enum
+
 
 class Position:
     def __init__(self, row: int, col: int):
@@ -105,7 +107,7 @@ class Board:
         return self.__str__()
 
 
-class Directions:
+class Directions(Enum):
     UP = 'up'
     RIGHT = 'right'
     DOWN = 'down'
@@ -129,7 +131,7 @@ class Player:
         return self.direction
     
     def set_direction(self, direction: Directions) -> None:
-        self.direction = self.directions.index(direction)
+        self.direction = direction
     
     def get_in_front_of(self, position: Position) -> str:
         direction_name = self.direction
