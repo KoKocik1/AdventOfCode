@@ -52,7 +52,7 @@ def main():
     board_y_size = 7
     obstacles_size = 12
     print(part1(points, board_x_size, board_y_size, obstacles_size))
-    #print(part2(points, board_x_size, board_y_size, obstacles_size))
+    print(part2(points, board_x_size, board_y_size, obstacles_size))
 
 
 if __name__ == "__main__":

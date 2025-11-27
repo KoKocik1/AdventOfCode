@@ -56,22 +56,13 @@ class PathFinder:
     def _explore_neighbors(self, position: Position, cost: int) -> None:
         """Explore all valid neighboring positions."""
         
-        # print("Checking neighbors of", position, "with cost", cost)
-        # print("-")
         for direction in Directions:
             self.player.set_direction(direction)
             new_position = self.player.move(position)
-            #print(direction, new_position)
             self.add_to_positions_to_visit(new_position, cost + 1)
-                #print(cost+1)
-        self.draw_path()
 
     def draw_path(self) -> None:
         """Draw the path on the board."""
-        # last_cost = self.position_costs[self.end_position]
-        # for position, cost in self.position_costs.items():
-        #     new_board[position.row][position.col] = str(cost)
-        
         for row in range(self.board.get_column_length()):
             for col in range(self.board.get_row_length()):
                 position = Position(row, col)
