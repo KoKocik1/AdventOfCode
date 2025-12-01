@@ -17,6 +17,9 @@ class GetFile:
     def get_2d_array(self) -> list[list[str]]:
         """Return the file as a 2D array (list of lists)."""
         return [row for row in self.get_row()]
+    
+    def get_string_list(self) -> list[str]:
+        return [row[0] for row in self.get_row()]
 
 
 # Test example usage:

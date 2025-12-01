@@ -19,13 +19,11 @@ def part2(array: list[int]) -> int:
         act_value, password = check_zero(act_value, rotation, password)
     return password
 
-def read_file(file: GetFile) -> list[int]:
-    return [parse_rotation(row[0]) for row in file.get_row()]
-
 def main():
     data_file = Path(__file__).parent / 'data/data.txt'
     file = GetFile(str(data_file), delimiter='\n')
-    array = read_file(file)
+    array = file.get_string_list()
+    array = [parse_rotation(rotation) for rotation in array]
     print(part1(array))
     print(part2(array))
 
