@@ -7,38 +7,34 @@ class Range:
         self.end = end
         
     def has_overlaps(self) -> list[int]:
+        """Find numbers where first half equals second half (e.g., 1212, 3434)."""
         overlaps = []
-        for r in range(self.start, self.end + 1):
-            range_str = str(r)
-            if len(range_str) % 2 == 0:
-                first_half = range_str[:len(range_str)//2]
-                second_half = range_str[len(range_str)//2:]
-                if first_half == second_half:
-                    overlaps.append(r)
+        for num in range(self.start, self.end + 1):
+            num_str = str(num)
+            if len(num_str) % 2 == 0:
+                half_len = len(num_str) // 2
+                if num_str[:half_len] == num_str[half_len:]:
+                    overlaps.append(num)
         return overlaps
     
     def has_repeats(self) -> list[int]:
+        """Find numbers with repeating patterns (e.g., 1212, 123123)."""
         repeats = []
-        for r in range(self.start, self.end + 1):
-            range_str = str(r)
-            #if len(range_str) % 2 == 0:
-            half = len(range_str)//2
-            for i in range(half):
-                if self._check_repeat(range_str, i+1):
-                    repeats.append(r)
+        for num in range(self.start, self.end + 1):
+            num_str = str(num)
+            half_len = len(num_str) // 2
+            for pattern_len in range(1, half_len + 1):
+                if self._check_repeat(num_str, pattern_len):
+                    repeats.append(num)
                     break
         return repeats
 
-    def _check_repeat(self, range_str: str, i: int) -> bool:
-        # Split range_str into consecutive substrings of length i
-        if i == 0 or len(range_str) % i != 0:
+    def _check_repeat(self, num_str: str, pattern_len: int) -> bool:
+        """Check if number string repeats a pattern of given length."""
+        if pattern_len == 0 or len(num_str) % pattern_len != 0:
             return False
-        parts = [range_str[j:j+i] for j in range(0, len(range_str), i)]
-        first = parts[0]
-        for part in parts[1:]:
-            if part != first:
-                return False
-        return True
+        parts = [num_str[j:j+pattern_len] for j in range(0, len(num_str), pattern_len)]
+        return all(part == parts[0] for part in parts[1:])
 
     def __str__(self) -> str:
         return f"{self.start}-{self.end}"

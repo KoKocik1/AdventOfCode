@@ -5,30 +5,37 @@ from _2025._2.classes import Range
 
 
 def part1(array: list[Range]) -> int:
-    count = 0
-    for range in array:
-        if range.start <= range.end:
-            overlaps = range.has_overlaps()
-            count += sum(overlaps)
-    return count
+    """Sum all overlapping numbers across all ranges."""
+    return sum(
+        sum(range_obj.has_overlaps())
+        for range_obj in array
+        if range_obj.start <= range_obj.end
+    )
 
 
 def part2(array: list[Range]) -> int:
-    count = 0
-    for range in array:
-        if range.start <= range.end:
-            repeats = range.has_repeats()
-            count += sum(repeats)
-    return count
+    """Sum all repeating numbers across all ranges."""
+    return sum(
+        sum(range_obj.has_repeats())
+        for range_obj in array
+        if range_obj.start <= range_obj.end
+    )
+
+def get_ranges(row: list[str]) -> list[Range]:
+    """Parse range strings (e.g., '11-22') into Range objects."""
+    ranges = []
+    for range_str in row:
+        parts = range_str.split('-')
+        if len(parts) == 2:
+            ranges.append(Range(int(parts[0]), int(parts[1])))
+    return ranges
+
 
 def read_data(file: GetFile) -> list[Range]:
+    """Read all ranges from file."""
     ranges = []
     for row in file.get_row():
-        for range in row:
-            range = range.split('-')
-            if len(range) != 2:
-                continue
-            ranges.append(Range(int(range[0]), int(range[1])))
+        ranges.extend(get_ranges(row))
     return ranges
 
 def main():
