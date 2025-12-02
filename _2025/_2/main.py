@@ -14,7 +14,12 @@ def part1(array: list[Range]) -> int:
 
 
 def part2(array: list[Range]) -> int:
-    return 0
+    count = 0
+    for range in array:
+        if range.start <= range.end:
+            repeats = range.has_repeats()
+            count += sum(repeats)
+    return count
 
 def read_data(file: GetFile) -> list[Range]:
     ranges = []
