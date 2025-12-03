@@ -1,27 +1,15 @@
 from pathlib import Path
 
 from helpers import GetFile
-from classes import find_largest_number
+from classes import iterate_array
 
 
-def part1(array: list[str]) -> int:
-    count = 0
-    for a in array:
-        max_position = len(a)-1
-        best_value = find_largest_number(a, 0, max_position)
-        print(best_value)
-        count += best_value
-    return count
+def part1(array: list[list[int]]) -> int:
+    return iterate_array(array, 2)
 
 
-def part2(array: list[str]) -> int:
-    count = 0
-    for a in array:
-        max_position = len(a)-11
-        best_value = find_largest_number(a, 0, max_position)
-        print(best_value)
-        count += best_value
-    return count
+def part2(array: list[list[int]]) -> int:
+    return iterate_array(array, 12)
 
 def read_data(file: GetFile) -> list[list[int]]:
     numbers = []
