@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from helpers import GetFile
-from classes import iterate_array
+from _2025._3.classes import iterate_array
 
 
 def part1(array: list[list[int]]) -> int:
