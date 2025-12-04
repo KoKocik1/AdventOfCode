@@ -11,7 +11,7 @@ class Forklift:
     def __init__(self, board: Board):
         self.board = board
     
-    def check_paper_rolls(self) -> tuple[int, list[Position]]:
+    def check_paper_rolls(self) -> list[Position]:
         """Find all accessible paper rolls (with <= 4 surrounding rolls)."""
         accessible_paper_rolls = []
         
