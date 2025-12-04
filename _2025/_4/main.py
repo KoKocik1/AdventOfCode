@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from helpers import GetFile, Board
+from helpers import GetFile, Board, time_and_print
 from _2025._4.classes import Forklift
 
 
@@ -22,9 +22,8 @@ def main():
     file = GetFile(str(data_file), delimiter='')
     array = file.get_2d_array()
     board = Board(array)
-    print(part1(board))
-    print(part2(board))
-
+    result1 = time_and_print("Part 1", part1, board)
+    result2 = time_and_print("Part 2", part2, board)
 
 if __name__ == "__main__":
     main()
