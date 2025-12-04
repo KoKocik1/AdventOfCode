@@ -47,6 +47,8 @@ class Board:
         return len(self.board)
 
     def get_character(self, position: Position) -> str:
+        if self.is_out_of_board(position):
+            return None
         return self.board[position.row][position.col]
 
     def is_character_at_position(self, position: Position | None, character: str) -> bool:
