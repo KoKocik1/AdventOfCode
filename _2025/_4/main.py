@@ -1,16 +1,18 @@
 from pathlib import Path
 
-from helpers import GetFile
-from helpers import Board
+from helpers import GetFile, Board
 from _2025._4.classes import Forklift
 
 
 def part1(board: Board) -> int:
+    """Count accessible paper rolls (with <= 4 surrounding rolls)."""
     forklift = Forklift(board)
-    return forklift.check_paper_rolls()[0]
+    accessible_count = forklift.check_paper_rolls()
+    return len(accessible_count)
 
 
 def part2(board: Board) -> int:
+    """Remove all accessible paper rolls iteratively and return total count."""
     forklift = Forklift(board)
     return forklift.clear_paper_rolls()
 
