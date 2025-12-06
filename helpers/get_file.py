@@ -3,23 +3,23 @@ class GetFile:
         self.path = path
         self.delimiter = delimiter
 
-    def get_row(self):
+    def get_row(self, strip: bool = True):
         """Generator that yields each row as a list of columns"""
         with open(self.path, 'r') as file:
             for line in file:
-                stripped = line.strip()
+                stripped = line.strip() if strip else line
                 # If delimiter is empty string or None, split into characters
                 if not self.delimiter:
                     yield list(stripped)
                 else:
                     yield stripped.split(self.delimiter)
 
-    def get_2d_array(self) -> list[list[str]]:
+    def get_2d_array(self, strip: bool = True) -> list[list[str]]:
         """Return the file as a 2D array (list of lists)."""
-        return [row for row in self.get_row()]
+        return [row for row in self.get_row(strip)]
     
-    def get_string_list(self) -> list[str]:
-        return [row[0] for row in self.get_row()]
+    def get_string_list(self, strip: bool = True) -> list[str]:
+        return [row[0] for row in self.get_row(strip)]
 
 
 # Test example usage:
