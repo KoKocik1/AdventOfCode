@@ -74,7 +74,7 @@ def get_part2_data(array: list[list[str]]) -> list[ColumnScore]:
     return column_scores
     
 def main():
-    data_file = Path(__file__).parent / 'data/data.txt'
+    data_file = Path(__file__).parent / 'data/test.txt'
     
     # Part 1: Read with space delimiter
     file = GetFile(str(data_file), delimiter=' ')
@@ -83,7 +83,7 @@ def main():
     
     # Part 2: Read with empty delimiter (character by character)
     file = GetFile(str(data_file), delimiter='')
-    array = file.get_2d_array()
+    array = file.get_2d_array(False)
     column_scores_part2 = get_part2_data(array)
     result2 = time_and_print("Part 2", part2, column_scores_part2)
 
