@@ -41,10 +41,15 @@ class VectorDistance:
 class VectorCircuits:
     vectorDistances: list[VectorDistance]
     circuits: list[list[Vector]]
-    
-    def __init__(self, vectorDistances: list[VectorDistance]):
+    last_x1: int
+    last_x2: int
+
+    def __init__(self, vectorDistances: list[VectorDistance], num_of_vectors: int=0):
         self.vectorDistances = vectorDistances
         self.circuits = []
+        self.last_x1 = 0
+        self.last_x2 = 0
+        self.num_of_vectors = num_of_vectors
         
     def remove_duplicates(self, circuit: list[Vector]):
         for vector in circuit:
@@ -52,7 +57,9 @@ class VectorCircuits:
                 circuit.remove(vector)
         return circuit
     
-    def create_circuits(self, num_of_circuits: int):
+    def create_circuits(self, num_of_circuits: int=0):
+        if num_of_circuits == 0:
+            num_of_circuits = len(self.vectorDistances)
         for i in range(num_of_circuits):
             vectorA= self.vectorDistances[i].pointA
             vectorB= self.vectorDistances[i].pointB
@@ -70,7 +77,7 @@ class VectorCircuits:
                         if not vectorB in circuit:
                             circuit.extend(bCircuit)
                             circuit = self.remove_duplicates(circuit)
-                            self.circuits.remove(bCircuit)
+                            self.circuits.remove(bCircuit) 
                     else:
                         if not vectorB in circuit:
                             should_add_b = True
@@ -82,6 +89,7 @@ class VectorCircuits:
                             circuit.extend(aCiruit)
                             circuit = self.remove_duplicates(circuit)
                             self.circuits.remove(aCiruit)
+
                     else:
                         if not vectorA in circuit:
                             should_add_a = True
@@ -95,6 +103,11 @@ class VectorCircuits:
                     if not vectorB in circuit:
                         circuit.append(vectorB)
                     should_add_b = False
+                if len(self.circuits) == 1 and len(self.circuits[0]) == self.num_of_vectors and self.last_x1 == 0 and self.last_x2 == 0:
+                    self.last_x1 = vectorA.x
+                    self.last_x2 = vectorB.x
+                    print(f"[{self.last_x1}, {self.last_x2}]")
+                    return
             if not addedA and not addedB:
                 self.circuits.append([vectorA, vectorB])
             
@@ -106,6 +119,9 @@ class VectorCircuits:
         len_circuits.sort(reverse=True)
         print(f"[{len_circuits[0]}, {len_circuits[1]}, {len_circuits[2]}]")
         return len_circuits[0] * len_circuits[1] * len_circuits[2]
+    
+    def get_x1_x2(self) -> int:
+        return self.last_x1 * self.last_x2
     
     def print_circuits(self):
         for circuit in self.circuits:

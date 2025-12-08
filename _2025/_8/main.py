@@ -20,7 +20,18 @@ def part1(vectors: list[Vector], num_of_circuits: int) -> int:
 
 
 def part2(vectors: list[Vector]) -> int:
-    return 0
+    vector_distances = []
+    for vector in vectors:
+        new_vector_distances = calculate_distance(vector, vectors)
+        vector_distances.extend(new_vector_distances)
+    
+    vector_distances.sort(key=lambda x: x.distance)
+
+    vector_circuits = VectorCircuits(vector_distances, len(vectors))
+    vector_circuits.create_circuits()
+    
+    vector_circuits.print_circuits()
+    return vector_circuits.get_x1_x2()
 
 def read_data(file: GetFile) -> list[Vector]:
     return [Vector(int(x), int(y), int(z)) for x, y, z in file.get_row()]
