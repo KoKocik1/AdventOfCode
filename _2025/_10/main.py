@@ -6,7 +6,6 @@ from classes import Indicators, Indicator
 def part1(data: Indicators) -> int:
     return data.find_states()
 
-
 def part2(data: Indicators) -> int:
     return data.find_joltage()
 

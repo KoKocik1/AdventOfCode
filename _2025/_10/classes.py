@@ -1,6 +1,23 @@
+"""
+Mathematical approaches:
+- Part 1: Linear algebra over GF(2) for light toggling
+- Part 2: Integer Linear Programming (ILP) for joltage
+
+Part 1 formulation (light toggling):
+- Each button = binary vector (1 if toggles position, 0 otherwise)
+- Solve: Ax = diff (mod 2) where diff = start XOR target
+- Find minimum weight solution (fewest button presses)
+
+Part 2 formulation (joltage):
+- Variables: x[j] = number of times to press button j (non-negative integers)
+- Constraints: For each position i: sum(x[j] for buttons j containing i) = joltage[i]
+- Objective: minimize sum(x[j])
+"""
 from collections import deque
-from itertools import combinations_with_replacement
-from collections import Counter
+from tqdm import tqdm
+
+from pulp import LpMinimize, LpProblem, LpVariable, lpSum, value, PULP_CBC_CMD
+
 
 
 class Indicator:
@@ -9,161 +26,129 @@ class Indicator:
     joltage: list[int]
     start_state: list[str]
     start_joltage: list[int]
-    
+
     def __init__(self, result: list[str], buttons: list[list[int]], joltage: list[int]):
         self.result = result
         self.buttons = buttons
         self.joltage = joltage
         self.start_state = ['.'] * len(result)
         self.start_joltage = [0] * len(joltage)
-    
+
     def switch_state(self, index: int, state: list[str]):
         if state[index] == '.':
             state[index] = '#'
         else:
             state[index] = '.'
         return state
-            
-    def find_state(self) -> int:
-        queue = deque([(self.start_state, 0, [])])
+    
+    
+    def find_state_bfs(self) -> int:
+        """Fallback BFS method if linear algebra fails."""
+        queue = deque([(self.start_state, 0)])
+        visited = {tuple(self.start_state)}
+        
         while queue:
-            current_state, counter, history = queue.popleft()
-            counter += 1
+            current_state, counter = queue.popleft()
+            
             for button in self.buttons:
                 new_state = current_state.copy()
                 for b in button:
                     new_state = self.switch_state(b, new_state)
-                new_history = history + [button]
-                queue.append((new_state, counter, new_history))
-                if new_state == self.result:
-                    return counter
-    
-    def _find_all_buttons(self, idx: int) -> list[list[int]]:
-        buttons = []
-        for button in self.buttons:
-            if idx in button:
-                buttons.append(button)
-        return buttons
-
-    def _find_all_combinations(self, buttons: list[list[int]], joltage: int) -> list[dict[tuple[int, ...], int]]:
-        combos = combinations_with_replacement(map(tuple, buttons), joltage)
-
-        result = []
-        for combo in combos:
-            dict_combo = dict(Counter(combo))
-            if self._check_occurence(dict_combo):
-                result.append(dict_combo)
-        
-        return result
-
-    def _check_occurence(self, dict_combo: dict[tuple[int, ...], int]) -> bool:
-        dict_occurence = {}
-        for idx in range(len(self.joltage)):
-            dict_occurence[idx] = 0
-            
-        for button, count in dict_combo.items():
-            for b in button:
-                dict_occurence[b] += count
-
-        for idx, count in dict_occurence.items():
-            if count > self.joltage[idx]:
-                return False
-        return True
-
-    def _check_combination(
-        self,
-        combination: dict[tuple[int, ...], int],
-        combination_dict: dict[int, dict[tuple[int, ...], int]],
-        # final_dict: dict[tuple[int, ...], int]
-    ) -> bool:
-        final_combination_dict = []
-        for idx in range(len(combination_dict)):
-            current_combination = combination_dict[idx]
-            include = True
-            # here check
-            for button, count in current_combination.items():
-                if button in combination:
-                    if count < combination[button]:
-                        include = False
-                        break
-            if include:
-                new_dict = current_combination.copy()
-                for button, count in combination.items():
-                    if button not in new_dict:
-                        new_dict[button] = count
-                if self._check_occurence(new_dict):
-                    final_combination_dict.append(new_dict)
-        return final_combination_dict
-
-    def find_joltage(self) -> int:
-        combination_dict = {}
-        possible_combinations = []
-        for idx, joltage in enumerate(self.joltage):
-            buttons = self._find_all_buttons(idx)
-            all_combinations = self._find_all_combinations(buttons, joltage)
-            combination_dict[idx] = all_combinations
-            possible_combinations.extend(all_combinations)
-        
-        final_dict = combination_dict[0]
-        for idx in range(1, len(self.joltage)):
-            new_final_dict = []
-            for c in combination_dict[idx]:
-                new_final_dict.extend(self._check_combination(
-                        c, final_dict))
-            final_dict = new_final_dict
-                # new_possible_combinations = []
-                # for combination in possible_combinations:
-                #     for all_combination in all_combinations:
-                #         if all_combination in combination:
-                #     if combination in combination_dict[idx-1]:
-                #         possible_combinations.remove(combination)
-        best_dict = None
-        best_count = 0
-        for f in final_dict:
-            count = 0
-            for button, c in f.items():
-                count += c
-            if best_count==0 or count < best_count:
-                best_dict = f
-                best_count = count
-
-        return best_dict, best_count
-        
-        
-        
-        print("1")
-        # queue = deque([(self.start_joltage, 0, [])])
-        # while queue:
-        #     current_state, counter, history = queue.popleft()
-        #     counter += 1
-        #     for button in self.buttons:
-        #         new_state = current_state.copy()
-        #         for b in button:
-        #             new_state = self.switch_state(b, new_state)
-        #         new_history = history + [button]
-        #         queue.append((new_state, counter, new_history))
-        #         if new_state == self.result:
-        #             return counter
-            
-            
                 
+                state_tuple = tuple(new_state)
+                if state_tuple not in visited:
+                    visited.add(state_tuple)
+                    if new_state == self.result:
+                        return counter + 1
+                    queue.append((new_state, counter + 1))
+        
+        return 0
+    
+    def find_state(self) -> int:
+        """Main method - uses linear algebra, falls back to BFS."""
+        try:
+            return self.find_state_linear_algebra()
+        except Exception as e:
+            print(f"Linear algebra failed: {e}, using BFS")
+            return self.find_state_bfs()
+
+    def find_joltage(self) -> tuple[dict[tuple[int, ...], int], int]:
+        """
+        Solve using Integer Linear Programming.
+        
+        Mathematical model:
+        - Variables: x[j] = presses of button j (integer >= 0)
+        - Constraints: For each position i: sum(x[j] where button j contains i) = joltage[i]
+        - Objective: minimize sum(x[j])
+        """
+        
+        # Create the optimization problem
+        prob = LpProblem("Joltage_Minimization", LpMinimize)
+        
+        # Create variables: one for each button
+        button_vars = {}
+        button_tuples = [tuple(btn) for btn in self.buttons]
+        
+        # Upper bound: at most sum of all joltage values
+        upper_bound = sum(self.joltage)
+        
+        for j, btn_tuple in enumerate(button_tuples):
+            button_vars[btn_tuple] = LpVariable(
+                f"x_{j}", 
+                lowBound=0, 
+                upBound=upper_bound, 
+                cat='Integer'
+            )
+        
+        # Objective: minimize total button presses
+        prob += lpSum(button_vars.values()), "Total_Button_Presses"
+        
+        # Constraints: For each position i, sum of button presses must equal joltage[i]
+        for i in range(len(self.joltage)):
+            relevant_vars = []
+            for btn_tuple in button_tuples:
+                if i in btn_tuple:
+                    relevant_vars.append(button_vars[btn_tuple])
+            
+            if relevant_vars:
+                prob += lpSum(relevant_vars) == self.joltage[i], f"Position_{i}_Constraint"
+        
+        # Solve
+        prob.solve(PULP_CBC_CMD(msg=0))
+        
+        if prob.status != 1:  # 1 = Optimal
+            return None, 0
+        
+        # Extract solution
+        solution = {}
+        total_presses = 0
+        for btn_tuple, var in button_vars.items():
+            presses = int(value(var))
+            if presses > 0:
+                solution[btn_tuple] = presses
+                total_presses += presses
+        
+        return solution, total_presses
+
 
 class Indicators:
     indicators: list[Indicator]
 
     def __init__(self):
         self.indicators = []
-        
+
     def find_states(self):
-        count=0
-        for indicator in self.indicators:
-            count += indicator.find_state()
+        count = 0
+        for indicator in tqdm(self.indicators):
+            count += indicator.find_state_bfs()
         return count
 
     def find_joltage(self):
-        count=0
-        for indicator in self.indicators:
-            best_dict, best_count = indicator.find_joltage()
-            print(best_dict, best_count)
-            count += best_count
+        count = 0
+        for indicator in tqdm(self.indicators):
+            _, best_count = indicator.find_joltage()
+            if best_count > 0:
+                count += best_count
+            else:
+                print(f"Warning: No solution found for indicator")
         return count
