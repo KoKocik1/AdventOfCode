@@ -1,18 +1,3 @@
-"""
-Mathematical approaches:
-- Part 1: Linear algebra over GF(2) for light toggling
-- Part 2: Integer Linear Programming (ILP) for joltage
-
-Part 1 formulation (light toggling):
-- Each button = binary vector (1 if toggles position, 0 otherwise)
-- Solve: Ax = diff (mod 2) where diff = start XOR target
-- Find minimum weight solution (fewest button presses)
-
-Part 2 formulation (joltage):
-- Variables: x[j] = number of times to press button j (non-negative integers)
-- Constraints: For each position i: sum(x[j] for buttons j containing i) = joltage[i]
-- Objective: minimize sum(x[j])
-"""
 from collections import deque
 from tqdm import tqdm
 
@@ -43,7 +28,6 @@ class Indicator:
     
     
     def find_state_bfs(self) -> int:
-        """Fallback BFS method if linear algebra fails."""
         queue = deque([(self.start_state, 0)])
         visited = {tuple(self.start_state)}
         
@@ -63,14 +47,7 @@ class Indicator:
                     queue.append((new_state, counter + 1))
         
         return 0
-    
-    def find_state(self) -> int:
-        """Main method - uses linear algebra, falls back to BFS."""
-        try:
-            return self.find_state_linear_algebra()
-        except Exception as e:
-            print(f"Linear algebra failed: {e}, using BFS")
-            return self.find_state_bfs()
+
 
     def find_joltage(self) -> tuple[dict[tuple[int, ...], int], int]:
         """
