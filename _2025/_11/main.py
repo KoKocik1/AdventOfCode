@@ -1,24 +1,40 @@
 from pathlib import Path
 
 from helpers import GetFile, time_and_print
-from classes import Graph, Solver, Solver2
+from classes import Graph, Solver, Solver2, Node
 
 def part1(graph: Graph) -> int:
     solver = Solver(graph)
-    return solver.solve('you', 'out')
+    you = graph.get_node('you')
+    out = graph.get_node('out')
+    if you is None or out is None:
+        return 0
+    return solver.solve(you, out)
 
 
 def part2(graph: Graph) -> int:
     solver = Solver2(graph)
     return solver.solve()
 
-
+def add_node(nodes: dict[str, Node], name: str) -> Node:
+    if name not in nodes:
+        nodes[name] = Node(name)
+    return nodes[name]
+        
 def get_data(file: GetFile) -> Graph:
+    nodes = dict[str, Node]()
     graph = Graph()
     for line in file.get_row():
         input, outputs = line[0], line[1]
         outputs = outputs.split(' ')
-        graph.add_node(input, outputs)
+        node = add_node(nodes, input)
+        for output in outputs:
+            child = add_node(nodes, output)
+            child.add_parent(node)
+    graph.set_nodes(nodes)
+    graph.set_levels()
+
+    #graph.create_graph()
     return graph
 
 def main():
