@@ -2,12 +2,31 @@ class Range:
     """Represents a range of integers from start to end (inclusive)."""
     
     def __init__(self, start: int, end: int):
+        if start > end:
+            end, start = start, end
         self.start = start
         self.end = end
-        
+    
+    def is_range_in_range(self, range: 'Range') -> bool:
+        """Check if a range is within this range (inclusive)."""
+        return self.start <= range.start <= self.end and self.start <= range.end <= self.end
+    
+    def is_any_point_in_range(self, range: 'Range') -> bool:
+        """Check if any point in this range is in the given range."""
+        return self.start <= range.start+1 <= self.end or self.start <= range.end-1 <= self.end
+    
+    def is_range_inside_range(self, range: 'Range') -> bool:
+        """Check if a range is inside this range (inclusive)."""
+        return (self.start < range.end < self.end) or \
+            (self.is_any_point_in_range(range))
+    
     def is_in_range(self, number: int) -> bool:
         """Check if a number is within this range (inclusive)."""
         return self.start <= number <= self.end
+    
+    def is_inside_range(self, number: int) -> bool:
+        """Check if a number is within this range (inclusive)."""
+        return self.start < number < self.end
 
     def get_size(self) -> int:
         """Get the size of the range (number of integers it contains)."""
@@ -26,6 +45,24 @@ class Range:
                 new_end = max(new_end, existing.end)
                 to_remove.append(existing)
         
+        for r in to_remove:
+            ranges.remove(r)
+
+        ranges.append(Range(new_start, new_end))
+    
+    def extend_2(self, ranges: list['Range']) -> None:
+        """Merge this range into a list of ranges, combining overlaps and adjacents."""
+
+        to_remove = []
+        new_start, new_end = self.start, self.end
+
+        for existing in ranges:
+            # Ranges overlap or are adjacent
+            if not (new_end < existing.start or new_start > existing.end):
+                new_start = min(new_start, existing.start)
+                new_end = max(new_end, existing.end)
+                to_remove.append(existing)
+
         for r in to_remove:
             ranges.remove(r)
 

@@ -96,11 +96,6 @@ class RedGreenField:
                     if col == 3141:
                         pass
                     self.all_points.append(Position(point.row, col))
-                    # if col not in self.row_all_points:
-                    #     self.row_all_points[col] = set()
-                    # self.row_all_points[col].add(Range(
-                    #     point.row,
-                    #     point.row))
                 if point.row not in self.col_all_points:
                     self.col_all_points[point.row] = set()
                 self.col_all_points[point.row].add(Range(
@@ -112,10 +107,6 @@ class RedGreenField:
                     pass
                 for row in range(min(point.row, next_point.row), max(point.row, next_point.row) + 1):
                     self.all_points.append(Position(row, point.col))
-                    # if row not in self.col_all_points:
-                    #     self.col_all_points[row] = set()
-                    # self.col_all_points[row].add(Range(
-                    #     point.col, point.col))
                 if point.col not in self.row_all_points:
                     self.row_all_points[point.col] = set()
                 self.row_all_points[point.col].add(Range(
@@ -124,11 +115,8 @@ class RedGreenField:
         
         # First logic for row_all_points
         for col, rows in self.row_all_points.items():
-            if col == 3141:
-                pass
             optimized = RangeHelper.optimize_ranges(rows)
-            optimized.sort(key=lambda x: x.start)
-        
+            optimized.sort(key=lambda x: x.start)    
             self.row_all_points[col] = optimized
 
                         
@@ -155,45 +143,31 @@ class RedGreenField:
     def is_range_inside_col(self, range_tuple: tuple[Range, Range]) -> bool:
 
         range_to_check = range_tuple[0]
-        if range_to_check.end - range_to_check.start < 2:
-            return True
+        # if range_to_check.end - range_to_check.start < 2:
+        #     return True
         
         range_to_iterate = range_tuple[1]
         for r in range(range_to_iterate.start+1, range_to_iterate.end):
             if r in self.row_all_points:
                 for p in self.row_all_points[r]:
-                    if range_to_check.is_range_inside_range(p):
+                    if p.is_range_inside_range(range_to_check):
                         return False
         return True
 
     def is_range_inside_row(self, range_tuple: tuple[Range, Range]) -> bool:
         range_to_check = range_tuple[0]
-        if range_to_check.end - range_to_check.start < 2:
-            return True
+        # if range_to_check.end - range_to_check.start < 2:
+        #     return True
         
         range_to_iterate = range_tuple[1]
         for r in range(range_to_iterate.start+1, range_to_iterate.end):
             if r in self.col_all_points:
                 for p in self.col_all_points[r]:
-                    if range_to_check.is_range_inside_range(p):
+                    if p.is_range_inside_range(range_to_check):
                         return False
         return True
 
-    def print_all_points(self):
-        max_row = max(self.row_all_points.keys())+2
-        max_col = max(self.col_all_points.keys())+1
-        board = BoardArray(max_row + 1, max_col + 1)
-        # for point in self.all_points:
-        #     board.set(point, '#')
-        for row, points in self.col_all_points.items():
-            for p in points:
-                for col in range(p.start, p.end + 1):
-                    board.set(Position(row, col), '|')
-        for col, points in self.row_all_points.items():
-            for p in points:
-                for row in range(p.start, p.end + 1):
-                    board.set(Position(row, col), '-')
-        print(board)
+
 
 class Rectangle:
     one_corner: Position
@@ -258,6 +232,7 @@ class RectanglArea:
                 range_b = ('ROW', Range(min_col, max_col), Range(min_row, max_row))
                 
                 if self.red_green_field.is_inside([range_a, range_b]):
+                    test=self.red_green_field.is_inside([range_a, range_b])
                     self._plot_rectangle(rect)
                     return area
         return -1
