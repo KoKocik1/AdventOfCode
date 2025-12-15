@@ -27,7 +27,12 @@ class Position:
         if not isinstance(other, Position):
             return False
         return self.row == other.row and self.col == other.col
-
+    
+    def __ne__(self, other: object) -> bool:
+        if not isinstance(other, Position):
+            return False
+        return self.row != other.row or self.col != other.col
+    
     def __hash__(self) -> int:
         """Make Position hashable so it can be used in sets and as dictionary keys."""
         return hash((self.row, self.col))
@@ -35,7 +40,38 @@ class Position:
     def __str__(self):
         return f"Position(row={self.row}, col={self.col})"
 
+class BoardArray:
+    def __init__(self, width: int, height: int, default='.'):
+        # For extremely large boards, only store explicitly set values in a dict;
+        # treat anything not set as the default.
+        self.width = width
+        self.height = height
+        self.default = default
+        self.cells = {}  # dict[(row, col)] = value
 
+    def set(self, position: Position, value: str):
+        self.cells[position] = value
+
+    def get(self, position: Position) -> str:
+        return self.cells.get(position, self.default)
+    
+    def is_character_at_position(self, position: Position, character: str) -> bool:
+        return self.get(position) == character
+    
+    def __str__(self):
+        #print . if its not in set, else print the value
+        for row in range(self.height):
+            for col in range(self.width):
+                if Position(row, col) in self.cells:
+                    print(self.cells[Position(row, col)], end='')
+                else:
+                    print('.', end='')
+            print()
+        return ''
+    
+    def __repr__(self):
+        return self.__str__()
+    
 class Board:
     def __init__(self, board: list[list[str]]):
         self.board = board
